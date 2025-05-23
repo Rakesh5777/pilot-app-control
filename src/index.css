@@ -1,6 +1,213 @@
 @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&display=swap');
 @import "tailwindcss";
+
+:root {
+  /* --- Light Theme (Default) --- */
+  /* Base */
+  --bg-default: #ffffff;
+  --fg-default: #0d3c48;
+  /* User: Text */
+
+  /* Cards, Sections, Muted Elements */
+  --bg-muted: #f8fafc;
+  /* e.g., Tailwind slate-50 */
+  --fg-muted: #52525b;
+  /* e.g., Tailwind zinc-500 for less prominent text */
+
+  /* Primary Interactive Elements (Buttons, Main Links) */
+  --primary-bg: #137978;
+  /* User: Buttons Active / Submenus */
+  --primary-fg: #fbfcfc;
+  /* User: Text on buttons */
+  --primary-hover-bg: #006e6c;
+  /* User: Mouse Over Color */
+
+  /* Secondary Interactive Elements or Accents */
+  --secondary-bg: #003035;
+  /* User: Heading and Main Menus */
+  --secondary-fg: #fbfcfc;
+  --secondary-hover-bg: #00252a;
+  /* Darker shade of secondary-bg */
+
+  /* Accent (Selected items, Highlights) */
+  --accent-bg: #00cb7a;
+  /* User: Left Menu Item Selected */
+  --accent-fg: #fbfcfc;
+  --accent-hover-bg: #00a362;
+  /* Darker shade of accent-bg */
+
+  /* Specific UI Text Elements */
+  --heading-fg: #003035;
+  /* User: Heading and Main Menus */
+  --main-menu-fg: #003035;
+  /* User: Heading and Main Menus */
+  --submenu-fg: #137978;
+  /* User: Submenus */
+}
+
+/* Explicit Light Theme Class (Overrides system dark preference) */
+.light {
+  /* Base */
+  --bg-default: #ffffff;
+  --fg-default: #0d3c48;
+  /* Cards, Sections, Muted Elements */
+  --bg-muted: #f8fafc;
+  --fg-muted: #52525b;
+  /* Primary Interactive Elements */
+  --primary-bg: #137978;
+  --primary-fg: #fbfcfc;
+  --primary-hover-bg: #006e6c;
+  /* Secondary Interactive Elements or Accents */
+  --secondary-bg: #003035;
+  --secondary-fg: #fbfcfc;
+  --secondary-hover-bg: #00252a;
+  /* Accent */
+  --accent-bg: #00cb7a;
+  --accent-fg: #fbfcfc;
+  --accent-hover-bg: #00a362;
+  /* Specific UI Text Elements */
+  --heading-fg: #003035;
+  --main-menu-fg: #003035;
+  --submenu-fg: #137978;
+}
+
+/* Explicit Dark Theme Class */
+.dark {
+  /* Base */
+  --bg-default: #001f24;
+  /* Dark cyan, related to #003035 */
+  --fg-default: #e0f7fa;
+  /* Light cyan for text */
+
+  /* Cards, Sections, Muted Elements */
+  --bg-muted: #002a30;
+  /* Slightly lighter than dark bg-default */
+  --fg-muted: #80deea;
+  /* Lighter cyan for muted text */
+
+  /* Primary Interactive Elements */
+  --primary-bg: #00cb7a;
+  /* User: Left Menu Item Selected (as primary action in dark) */
+  --primary-fg: #003035;
+  /* Dark text on this bright green */
+  --primary-hover-bg: #00a362;
+  /* Darker shade */
+
+  /* Secondary Interactive Elements or Accents */
+  --secondary-bg: #137978;
+  /* User: Submenus */
+  --secondary-fg: #e0f7fa;
+  /* Light text */
+  --secondary-hover-bg: #006e6c;
+  /* User: Mouse Over Color (can be hover for secondary) */
+
+  /* Accent */
+  --accent-bg: #006e6c;
+  /* User: Mouse Over Color (as accent in dark) */
+  --accent-fg: #e0f7fa;
+  /* Light text */
+  --accent-hover-bg: #005856;
+  /* Darker shade */
+
+  /* Specific UI Text Elements */
+  --heading-fg: #b2ebf2;
+  /* Lighter version for dark mode headings */
+  --main-menu-fg: #b2ebf2;
+  /* Lighter for dark mode */
+  --submenu-fg: #80deea;
+  /* Lighter for dark mode */
+}
+
+@layer utilities {
+
+  /* Text Colors */
+  .text-default {
+    color: var(--fg-default);
+  }
+
+  .text-muted {
+    color: var(--fg-muted);
+  }
+
+  .text-primary {
+    color: var(--primary-bg);
+  }
+
+  /* Uses the primary background color for text */
+  .text-secondary {
+    color: var(--secondary-bg);
+  }
+
+  /* Uses the secondary background color for text */
+  .text-accent {
+    color: var(--accent-bg);
+  }
+
+  /* Uses the accent background color for text */
+  .text-heading {
+    color: var(--heading-fg);
+  }
+
+  .text-main-menu {
+    color: var(--main-menu-fg);
+  }
+
+  .text-submenu {
+    color: var(--submenu-fg);
+  }
+
+  /* Foreground colors for text on specific backgrounds */
+  .text-primary-foreground {
+    color: var(--primary-fg);
+  }
+
+  .text-secondary-foreground {
+    color: var(--secondary-fg);
+  }
+
+  .text-accent-foreground {
+    color: var(--accent-fg);
+  }
+
+  /* Background Colors */
+  .bg-default {
+    background-color: var(--bg-default);
+  }
+
+  .bg-muted {
+    background-color: var(--bg-muted);
+  }
+
+  .bg-primary {
+    background-color: var(--primary-bg);
+  }
+
+  .bg-secondary {
+    background-color: var(--secondary-bg);
+  }
+
+  .bg-accent {
+    background-color: var(--accent-bg);
+  }
+
+  /* Hover Background Colors (intended for use with Tailwind's hover: prefix) */
+  /* Example: class="bg-primary hover:bg-primary-hover" */
+  .bg-primary-hover {
+    background-color: var(--primary-hover-bg);
+  }
+
+  .bg-secondary-hover {
+    background-color: var(--secondary-hover-bg);
+  }
+
+  .bg-accent-hover {
+    background-color: var(--accent-hover-bg);
+  }
+}
+
 body {
   font-family: 'Figtree', sans-serif;
-  color: #1a202c;
+  color: var(--fg-default);
+  background-color: var(--bg-default);
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
