@@ -1,25 +1,27 @@
-import React from 'react';
+import React, { type JSX } from "react";
+import { FaUsers } from "react-icons/fa";
 
 interface NavItem {
   name: string;
   path: string;
-  // icon?: JSX.Element; // Placeholder for icons
+  icon?: JSX.Element;
 }
 
 const navItems: NavItem[] = [
-  { name: "Customers", path: "/customers" },
-  { name: "Contacts", path: "/contacts" },
-  { name: "AFR Data", path: "/afr-data" },
-  { name: "Checklist", path: "/checklist" },
+  {
+    name: "Customers",
+    path: "/customers",
+    icon: <FaUsers size={16} />,
+  },
 ];
 
 const SideNav: React.FC = () => {
   const activePath = "/customers";
 
   return (
-    <div className="h-screen w-64 bg-muted text-default flex flex-col">
-      <div className="p-4 border-b border-[var(--bg-default)]">
-        <h1 className="text-xl font-semibold color-primary text-primary">
+    <div className="h-screen w-64 bg-secondary flex flex-col">
+      <div className="p-4 flex justify-between items-center">
+        <h1 className="text-xl font-semibold text-[#FBFCFC]">
           PilotApp Control Panel
         </h1>
       </div>
@@ -38,6 +40,7 @@ const SideNav: React.FC = () => {
               transition-colors duration-150
             `}
           >
+            {item.icon && <span className="mr-2">{item.icon}</span>}
             {item.name}
           </a>
         ))}

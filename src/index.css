@@ -1,122 +1,97 @@
 @import "tailwindcss";
 
 :root {
-  /* --- Light Theme (Default) --- */
+  /* --- Light Theme (Based on the provided image) --- */
   /* Base */
-  --bg-default: #ffffff;
+  --bg-default: #f8fafc;
+    /* Light gray background for the main area */
   --fg-default: #0d3c48;
-  /* User: Text */
+  /* Dark teal for primary text */
 
   /* Cards, Sections, Muted Elements */
-  --bg-muted: #f8fafc;
-  /* e.g., Tailwind slate-50 */
-  --fg-muted: #52525b;
-  /* e.g., Tailwind zinc-500 for less prominent text */
+  --bg-muted: #ffffff;
+    /* White background for cards and headers */
+    --fg-muted: #64748b;
+    /* A muted slate color for less prominent text */
 
-  /* Primary Interactive Elements (Buttons, Main Links) */
+  /* Primary Interactive Elements (e.g., "Add New Customer" button) */
   --primary-bg: #137978;
-  /* User: Buttons Active / Submenus */
-  --primary-fg: #fbfcfc;
-  /* User: Text on buttons */
-  --primary-hover-bg: #006e6c;
-  /* User: Mouse Over Color */
+  /* Medium teal */
+    --primary-fg: #ffffff;
+    /* White text on buttons */
+    --primary-hover-bg: #116a69;
+    /* Slightly darker teal for hover */
 
-  /* Secondary Interactive Elements or Accents */
-  --secondary-bg: #003035;
-  /* User: Heading and Main Menus */
-  --secondary-fg: #fbfcfc;
-  --secondary-hover-bg: #00252a;
-  /* Darker shade of secondary-bg */
+  /* Secondary Elements (e.g., Sidebar) */
+    --secondary-bg: #08292f;
+    /* Dark teal for the sidebar */
+    --secondary-fg: #e2e8f0;
+    /* Light slate/off-white for sidebar text/icons */
+    --secondary-hover-bg: #1e4e5a;
+    /* A slightly lighter teal for sidebar item hover */
 
-  /* Accent (Selected items, Highlights) */
-  --accent-bg: #00cb7a;
-  /* User: Left Menu Item Selected */
-  --accent-fg: #fbfcfc;
-  --accent-hover-bg: #00a362;
-  /* Darker shade of accent-bg */
+  /* Accent (Selected items, highlights) */
+    --accent-bg: #137978;
+    /* Bright green for the selected sidebar item */
+    --accent-fg: #ffffff;
+    /* White text on the accent color */
+    --accent-hover-bg: #00b36c;
+    /* Darker green for hover */
 
   /* Specific UI Text Elements */
-  --heading-fg: #003035;
-  /* User: Heading and Main Menus */
-  --main-menu-fg: #003035;
-  /* User: Heading and Main Menus */
-  --submenu-fg: #137978;
-  /* User: Submenus */
+  --heading-fg: #0d3c48;
+    /* Dark teal for main headings like "Dashboard" */
+
+  /* Status Colors from Image */
+    --status-active-bg: #e6f7f2;
+    /* Light green background for 'Active' badge */
+    --status-active-fg: #00875a;
+    /* Darker green text for 'Active' badge */
+    --status-inactive-bg: #fdeaea;
+    /* Light red background for 'InActive' badge */
+    --status-inactive-fg: #c81e1e;
+    /* Darker red text for 'InActive' badge */
 }
 
-/* Explicit Light Theme Class (Overrides system dark preference) */
-.light {
-  /* Base */
-  --bg-default: #ffffff;
-  --fg-default: #0d3c48;
-  /* Cards, Sections, Muted Elements */
-  --bg-muted: #f8fafc;
-  --fg-muted: #52525b;
-  /* Primary Interactive Elements */
-  --primary-bg: #137978;
-  --primary-fg: #fbfcfc;
-  --primary-hover-bg: #006e6c;
-  /* Secondary Interactive Elements or Accents */
-  --secondary-bg: #003035;
-  --secondary-fg: #fbfcfc;
-  --secondary-hover-bg: #00252a;
-  /* Accent */
-  --accent-bg: #00cb7a;
-  --accent-fg: #fbfcfc;
-  --accent-hover-bg: #00a362;
-  /* Specific UI Text Elements */
-  --heading-fg: #003035;
-  --main-menu-fg: #003035;
-  --submenu-fg: #137978;
-}
-
-/* Explicit Dark Theme Class */
+/* Explicit Dark Theme Class (A logical interpretation for a dark mode) */
 .dark {
   /* Base */
-  --bg-default: #001f24;
-  /* Dark cyan, related to #003035 */
+  --bg-default: #0a2e36;
   --fg-default: #e0f7fa;
-  /* Light cyan for text */
 
   /* Cards, Sections, Muted Elements */
-  --bg-muted: #002a30;
-  /* Slightly lighter than dark bg-default */
-  --fg-muted: #80deea;
-  /* Lighter cyan for muted text */
+  --bg-muted: #0d3c48;
+    --fg-muted: #94a3b8;
 
   /* Primary Interactive Elements */
   --primary-bg: #00cb7a;
-  /* User: Left Menu Item Selected (as primary action in dark) */
-  --primary-fg: #003035;
-  /* Dark text on this bright green */
-  --primary-hover-bg: #00a362;
-  /* Darker shade */
+  /* Green becomes the primary call to action */
+    --primary-fg: #0d3c48;
+    --primary-hover-bg: #2ce49c;
 
-  /* Secondary Interactive Elements or Accents */
-  --secondary-bg: #137978;
-  /* User: Submenus */
+  /* Secondary Elements (e.g., Sidebar) */
+    --secondary-bg: #08252b;
+    /* Even darker for the sidebar */
   --secondary-fg: #e0f7fa;
-  /* Light text */
-  --secondary-hover-bg: #006e6c;
-  /* User: Mouse Over Color (can be hover for secondary) */
+  --secondary-hover-bg: #0d3c48;
 
   /* Accent */
-  --accent-bg: #006e6c;
-  /* User: Mouse Over Color (as accent in dark) */
-  --accent-fg: #e0f7fa;
-  /* Light text */
-  --accent-hover-bg: #005856;
-  /* Darker shade */
+  --accent-bg: #137978;
+    /* Teal for selection */
+    --accent-fg: #ffffff;
+    --accent-hover-bg: #1e9a98;
 
   /* Specific UI Text Elements */
-  --heading-fg: #b2ebf2;
-  /* Lighter version for dark mode headings */
-  --main-menu-fg: #b2ebf2;
-  /* Lighter for dark mode */
-  --submenu-fg: #80deea;
-  /* Lighter for dark mode */
+  --heading-fg: #ffffff;
+  
+    /* Status Colors */
+    --status-active-bg: #004a31;
+    --status-active-fg: #6ee7b7;
+    --status-inactive-bg: #5c1a1a;
+    --status-inactive-fg: #fca5a5;
 }
 
+/* --- UTILITIES (No changes needed below this line) --- */
 @layer utilities {
 
   /* Text Colors */
@@ -132,27 +107,16 @@
     color: var(--primary-bg);
   }
 
-  /* Uses the primary background color for text */
   .text-secondary {
     color: var(--secondary-bg);
   }
 
-  /* Uses the secondary background color for text */
   .text-accent {
     color: var(--accent-bg);
   }
 
-  /* Uses the accent background color for text */
   .text-heading {
     color: var(--heading-fg);
-  }
-
-  .text-main-menu {
-    color: var(--main-menu-fg);
-  }
-
-  .text-submenu {
-    color: var(--submenu-fg);
   }
 
   /* Foreground colors for text on specific backgrounds */
@@ -189,19 +153,47 @@
     background-color: var(--accent-bg);
   }
 
-  /* Hover Background Colors (intended for use with Tailwind's hover: prefix) */
-  /* Example: class="bg-primary hover:bg-primary-hover" */
-  .bg-primary-hover {
+                                                                                                                                                                                                                                                                /* Hover Background Colors */
+                                                                                                                                                                                                                                                                .hover\:bg-primary-hover:hover {
     background-color: var(--primary-hover-bg);
   }
 
-  .bg-secondary-hover {
+                                                                                                                                                                                                                                                                .hover\:bg-secondary-hover:hover {
     background-color: var(--secondary-hover-bg);
   }
 
-  .bg-accent-hover {
+                                                                                                                                                                                                                                                                .hover\:bg-accent-hover:hover {
     background-color: var(--accent-hover-bg);
   }
+/* Border Colors */
+.border-primary {
+  border-color: var(--primary-bg);
+}
+
+.border-secondary {
+  border-color: var(--secondary-bg);
+}
+
+.border-accent {
+  border-color: var(--accent-bg);
+}
+
+/* Status Badge Colors */
+.bg-status-active {
+  background-color: var(--status-active-bg);
+}
+
+.text-status-active {
+  color: var(--status-active-fg);
+}
+
+.bg-status-inactive {
+  background-color: var(--status-inactive-bg);
+}
+
+.text-status-inactive {
+  color: var(--status-inactive-fg);
+}
 }
 
 body {
