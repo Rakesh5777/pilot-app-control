@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Button,
   Field,
+  Fieldset,
   Grid,
   GridItem,
   Heading,
@@ -15,11 +16,9 @@ import {
   VStack,
   createListCollection,
 } from "@chakra-ui/react";
-import { toaster } from "@/components/ui/toaster"; // Assuming this path is correct
-import type { ValueChangeDetails as NumberInputValueChangeDetails } from "@zag-js/number-input"; // Import the specific type
-import type { ValueChangeDetails as RadioGroupValueChangeDetails } from "@zag-js/radio-group"; // Import the specific type for RadioGroup
+import { toaster } from "@/components/ui/toaster";
+import { useForm, Controller } from "react-hook-form";
 
-// Interface for form data remains the same
 interface FormData {
   airlineName: string;
   customerCode: string;
@@ -32,34 +31,6 @@ interface FormData {
   comment: string;
 }
 
-// Interface for form errors remains the same
-interface FormErrors {
-  airlineName?: string;
-  customerCode?: string;
-  iataCode?: string;
-  businessRegistrationNumber?: string;
-  countryRegion?: string;
-  fleetSize?: string;
-  industry?: string;
-  customerType?: string;
-  comment?: string;
-}
-
-// Initial form state remains the same
-const initialFormData: FormData = {
-  airlineName: "Airline 8",
-  customerCode: "",
-  iataCode: "",
-  businessRegistrationNumber: "",
-  countryRegion: "",
-  fleetSize: "",
-  industry: "Airline",
-  customerType: "",
-  comment: "",
-};
-
-const initialFormErrors: FormErrors = {};
-// Data for data-driven components (new Select and RadioGroup)
 const industryOptionsArray = [
   { value: "Airline", label: "Airline" },
   { value: "Aerospace", label: "Aerospace" },
@@ -82,99 +53,45 @@ const customerTypeOptions = [
 ];
 
 const AddCustomerForm: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [errors, setErrors] = useState<FormErrors>(initialFormErrors);
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<FormData>({
+    defaultValues: {
+      airlineName: "",
+      customerCode: "",
+      iataCode: "",
+      businessRegistrationNumber: "",
+      countryRegion: "",
+      fleetSize: "1",
+      industry: "Airline",
+      customerType: "Lead",
+      comment: "",
+    },
+    mode: "onTouched",
+  });
 
-  // --- Event Handlers (Updated for new component APIs) ---
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({ ...prev, [name]: undefined }));
-    }
+  const onSubmit = (formData: FormData) => {
+    console.log("Form submitted successfully:", formData);
+    toaster.create({
+      title: "Customer Added.",
+      description: "The new customer data has been prepared.",
+      type: "success",
+    });
   };
 
-  const handleIndustryChange = (details: { value: string[] }) => {
-    // Select component might have different ValueChangeDetails structure
-    const value = details.value[0] || "";
-    setFormData((prev) => ({ ...prev, industry: value }));
-    if (errors.industry) {
-      setErrors((prev) => ({ ...prev, industry: undefined }));
-    }
-  };
-
-  // Use the explicitly imported type for RadioGroup details
-  const handleCustomerTypeChange = (details: RadioGroupValueChangeDetails) => {
-    const value = details.value === null ? "" : details.value; // Handle null case
-    setFormData((prev) => ({ ...prev, customerType: value }));
-    if (errors.customerType) {
-      setErrors((prev) => ({ ...prev, customerType: undefined }));
-    }
-  };
-
-  // Use the explicitly imported type for NumberInput details
-  const handleFleetSizeChange = (details: NumberInputValueChangeDetails) => {
-    setFormData((prev) => ({ ...prev, fleetSize: details.value })); // Use value instead of valueAsString
-    if (errors.fleetSize) {
-      setErrors((prev) => ({ ...prev, fleetSize: undefined }));
-    }
-  };
-
-  const validate = (): boolean => {
-    const newErrors: FormErrors = {};
-    if (!formData.airlineName.trim())
-      newErrors.airlineName = "Airline Name is required.";
-    if (!formData.customerCode.trim())
-      newErrors.customerCode = "Customer Code is required.";
-    if (!formData.iataCode.trim())
-      newErrors.iataCode = "IATA Code is required.";
-    if (!formData.businessRegistrationNumber.trim())
-      newErrors.businessRegistrationNumber =
-        "Business Registration Number is required.";
-    if (!formData.countryRegion.trim())
-      newErrors.countryRegion = "Country/Region of Operation is required.";
-    if (!formData.fleetSize.trim()) {
-      newErrors.fleetSize = "Fleet Size is required.";
-    } else if (
-      isNaN(parseInt(formData.fleetSize)) ||
-      parseInt(formData.fleetSize) <= 0
-    ) {
-      newErrors.fleetSize = "Fleet Size must be a positive number.";
-    }
-    if (!formData.industry) newErrors.industry = "Industry is required.";
-    if (!formData.customerType)
-      newErrors.customerType = "Customer Type is required."; // This check might need adjustment if null is a valid "unselected" state
-    if (formData.comment.length > 500)
-      newErrors.comment = "Comment cannot exceed 500 characters.";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (validate()) {
-      console.log("Form submitted successfully:", formData);
-      toaster.create({
-        title: "Customer Added.",
-        description: "The new customer data has been prepared.",
-        type: "success",
-      });
-    } else {
-      console.log("Form validation failed.");
-      toaster.create({
-        title: "Validation Error.",
-        description: "Please check the form for errors.",
-        type: "error",
-      });
-    }
+  const onError = () => {
+    toaster.create({
+      title: "Validation Error.",
+      description: "Please check the form for errors.",
+      type: "error",
+    });
   };
 
   const handleCancel = () => {
-    setFormData(initialFormData);
-    setErrors(initialFormErrors);
+    reset();
     toaster.create({
       description: "Form has been reset.",
       type: "info",
@@ -183,61 +100,61 @@ const AddCustomerForm: React.FC = () => {
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit, onError)}
       style={{ maxWidth: 900, margin: "32px 0 32px 40px", padding: 16 }}
     >
       <HStack mb={6} alignItems="center">
         <Heading size="lg" color="gray.700">
           Add Customer
         </Heading>
-        {/* <Icon as={ChevronRightIcon} boxSize={6} color="gray.400" /> */}
         <Text fontSize="xl" color="gray.500">
           Basic
         </Text>
       </HStack>
       <VStack gap={6} align="stretch">
-        {" "}
         <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
           <GridItem>
             <Field.Root id="airlineName" invalid={!!errors.airlineName}>
               <Field.Label fontWeight="semibold">Airline Name</Field.Label>
-              <Input
+              <Controller
                 name="airlineName"
-                value={formData.airlineName}
-                onChange={handleChange}
-                borderRadius="md"
+                control={control}
+                rules={{ required: "Airline Name is required." }}
+                render={({ field }) => <Input {...field} borderRadius="md" />}
               />
-              <Field.ErrorText>{errors.airlineName}</Field.ErrorText>
+              <Field.ErrorText>{errors.airlineName?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
-
           <GridItem>
             <Field.Root id="customerCode" invalid={!!errors.customerCode}>
               <Field.Label fontWeight="semibold">Customer Code</Field.Label>
-              <Input
+              <Controller
                 name="customerCode"
-                value={formData.customerCode}
-                onChange={handleChange}
-                borderRadius="md"
+                control={control}
+                rules={{ required: "Customer Code is required." }}
+                render={({ field }) => <Input {...field} borderRadius="md" />}
               />
-              <Field.ErrorText>{errors.customerCode}</Field.ErrorText>
+              <Field.ErrorText>{errors.customerCode?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
-
           <GridItem>
             <Field.Root id="iataCode" invalid={!!errors.iataCode}>
               <Field.Label fontWeight="semibold">IATA Code</Field.Label>
-              <Input
+              <Controller
                 name="iataCode"
-                value={formData.iataCode}
-                onChange={handleChange}
-                textTransform="uppercase"
-                borderRadius="md"
+                control={control}
+                rules={{ required: "IATA Code is required." }}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    textTransform="uppercase"
+                    borderRadius="md"
+                  />
+                )}
               />
-              <Field.ErrorText>{errors.iataCode}</Field.ErrorText>
+              <Field.ErrorText>{errors.iataCode?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
-
           <GridItem>
             <Field.Root
               id="businessRegNum"
@@ -246,113 +163,160 @@ const AddCustomerForm: React.FC = () => {
               <Field.Label fontWeight="semibold">
                 Business Registration Number
               </Field.Label>
-              <Input
+              <Controller
                 name="businessRegistrationNumber"
-                value={formData.businessRegistrationNumber}
-                onChange={handleChange}
-                borderRadius="md"
+                control={control}
+                rules={{
+                  required: "Business Registration Number is required.",
+                }}
+                render={({ field }) => <Input {...field} borderRadius="md" />}
               />
               <Field.ErrorText>
-                {errors.businessRegistrationNumber}
+                {errors.businessRegistrationNumber?.message}
               </Field.ErrorText>
             </Field.Root>
           </GridItem>
-
           <GridItem>
             <Field.Root id="countryRegion" invalid={!!errors.countryRegion}>
               <Field.Label fontWeight="semibold">
                 Country/Region of Operation
               </Field.Label>
-              <Input
+              <Controller
                 name="countryRegion"
-                value={formData.countryRegion}
-                onChange={handleChange}
-                borderRadius="md"
+                control={control}
+                rules={{ required: "Country/Region of Operation is required." }}
+                render={({ field }) => <Input {...field} borderRadius="md" />}
               />
-              <Field.ErrorText>{errors.countryRegion}</Field.ErrorText>
+              <Field.ErrorText>{errors.countryRegion?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
-
           <GridItem>
             <Field.Root id="fleetSize" invalid={!!errors.fleetSize}>
               <Field.Label fontWeight="semibold">Fleet Size</Field.Label>
-              <NumberInput.Root
-                value={formData.fleetSize}
-                onValueChange={handleFleetSizeChange}
-                min={1}
-              >
-                <NumberInput.Input borderRadius="md" />
-                <NumberInput.Control>
-                  <NumberInput.IncrementTrigger />
-                  <NumberInput.DecrementTrigger />
-                </NumberInput.Control>
-              </NumberInput.Root>
-              <Field.ErrorText>{errors.fleetSize}</Field.ErrorText>
+              <Controller
+                name="fleetSize"
+                control={control}
+                rules={{
+                  required: "Fleet Size is required.",
+                  validate: (value) => {
+                    if (!value || value.trim() === "")
+                      return "Fleet Size is required.";
+                    if (isNaN(parseInt(value)) || parseInt(value) <= 0)
+                      return "Fleet Size must be a positive number.";
+                    return true;
+                  },
+                }}
+                render={({ field }) => (
+                  <NumberInput.Root
+                    value={field.value}
+                    onValueChange={(details) => field.onChange(details.value)}
+                    min={1}
+                  >
+                    <NumberInput.Input borderRadius="md" />
+                    <NumberInput.Control>
+                      <NumberInput.IncrementTrigger />
+                      <NumberInput.DecrementTrigger />
+                    </NumberInput.Control>
+                  </NumberInput.Root>
+                )}
+              />
+              <Field.ErrorText>{errors.fleetSize?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
           <GridItem colSpan={2}>
             <Field.Root id="industry" invalid={!!errors.industry}>
               <Field.Label fontWeight="semibold">Industry</Field.Label>
-              <Select.Root
-                value={[formData.industry]}
-                onValueChange={handleIndustryChange}
-                collection={industryOptions}
-              >
-                <Select.Trigger>
-                  <Select.ValueText placeholder="Select industry" />
-                  <Select.Indicator />
-                </Select.Trigger>
-                <Select.Positioner>
-                  <Select.Content>
-                    {industryOptionsArray.map((item) => (
-                      <Select.Item key={item.value} item={item}>
-                        <Select.ItemText>{item.label}</Select.ItemText>
-                        <Select.ItemIndicator />
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Positioner>
-              </Select.Root>
-              <Field.ErrorText>{errors.industry}</Field.ErrorText>
+              <Controller
+                name="industry"
+                control={control}
+                rules={{ required: "Industry is required." }}
+                render={({ field }) => (
+                  <Select.Root
+                    value={[field.value]}
+                    onValueChange={(details) =>
+                      field.onChange(details.value[0] || "")
+                    }
+                    collection={industryOptions}
+                  >
+                    <Select.Trigger>
+                      <Select.ValueText placeholder="Select industry" />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Positioner>
+                      <Select.Content>
+                        {industryOptionsArray.map((item) => (
+                          <Select.Item key={item.value} item={item}>
+                            <Select.ItemText>{item.label}</Select.ItemText>
+                            <Select.ItemIndicator />
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Select.Root>
+                )}
+              />
+              <Field.ErrorText>{errors.industry?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
           <GridItem colSpan={2}>
-            <Field.Root id="customerType" invalid={!!errors.customerType}>
-              <Field.Label as="legend" fontWeight="semibold">
-                Customer Type
-              </Field.Label>
-              <RadioGroup.Root
-                value={formData.customerType}
-                onValueChange={handleCustomerTypeChange}
-              >
-                <HStack gap={4} wrap="wrap">
-                  {customerTypeOptions.map((item) => (
-                    <RadioGroup.Item key={item.value} value={item.value}>
-                      <RadioGroup.ItemControl />
-                      <RadioGroup.ItemText>{item.label}</RadioGroup.ItemText>
-                    </RadioGroup.Item>
-                  ))}
-                </HStack>
-              </RadioGroup.Root>
-              <Field.ErrorText>{errors.customerType}</Field.ErrorText>
-            </Field.Root>
+            <Fieldset.Root invalid={!!errors.customerType}>
+              <Fieldset.Legend>Customer Type</Fieldset.Legend>
+              <Controller
+                name="customerType"
+                control={control}
+                rules={{ required: "Customer Type is required." }}
+                render={({ field }) => (
+                  <RadioGroup.Root
+                    name={field.name}
+                    value={field.value}
+                    onValueChange={({ value }) => field.onChange(value)}
+                  >
+                    <HStack gap={4} wrap="wrap">
+                      {customerTypeOptions.map((item) => (
+                        <RadioGroup.Item key={item.value} value={item.value}>
+                          <RadioGroup.ItemHiddenInput onBlur={field.onBlur} />
+                          <RadioGroup.ItemIndicator />
+                          <RadioGroup.ItemText>
+                            {item.label}
+                          </RadioGroup.ItemText>
+                        </RadioGroup.Item>
+                      ))}
+                    </HStack>
+                  </RadioGroup.Root>
+                )}
+              />
+              <Fieldset.ErrorText>
+                {errors.customerType?.message}
+              </Fieldset.ErrorText>
+            </Fieldset.Root>
           </GridItem>
           <GridItem colSpan={2}>
             <Field.Root id="comment" invalid={!!errors.comment}>
               <Field.Label fontWeight="semibold">Comment</Field.Label>
-              <Textarea
+              <Controller
                 name="comment"
-                value={formData.comment}
-                onChange={handleChange}
-                rows={4}
-                borderRadius="md"
+                control={control}
+                rules={{
+                  maxLength: {
+                    value: 500,
+                    message: "Comment cannot exceed 500 characters.",
+                  },
+                }}
+                render={({ field }) => (
+                  <Textarea {...field} rows={4} borderRadius="md" />
+                )}
               />
-              <Field.ErrorText>{errors.comment}</Field.ErrorText>
+              <Field.ErrorText>{errors.comment?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
         </Grid>
         <HStack justifyContent="flex-end" mt={4} gap={4}>
-          <Button variant="outline" minWidth="100px" onClick={handleCancel}>
+          <Button
+            variant="outline"
+            minWidth="100px"
+            onClick={handleCancel}
+            type="button"
+          >
             Cancel
           </Button>
           <Button type="submit" colorScheme="teal" minWidth="100px">
