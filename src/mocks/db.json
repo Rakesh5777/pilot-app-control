@@ -1,0 +1,76 @@
+{
+  "customers": [
+    {
+      "id": "8bd3",
+      "airlineName": "super",
+      "customerCode": "123",
+      "iataCode": "123",
+      "businessRegistrationNumber": "234",
+      "countryRegion": "234",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comment": "wow this is super"
+    },
+    {
+      "id": "f033",
+      "airlineName": "asdfasdf",
+      "customerCode": "asdfa",
+      "iataCode": "asdfasdf",
+      "businessRegistrationNumber": "asdfasdf",
+      "countryRegion": "asdf",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comment": "asdf"
+    },
+    {
+      "id": "883c",
+      "airlineName": "asdgsdf",
+      "customerCode": "asdgas",
+      "iataCode": "asdg",
+      "businessRegistrationNumber": "asdgasdg",
+      "countryRegion": "asdfasdf",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comment": "asdgasdgsad"
+    },
+    {
+      "id": "935f",
+      "airlineName": "agdsf",
+      "customerCode": "asdg",
+      "iataCode": "asdg",
+      "businessRegistrationNumber": "asdg",
+      "countryRegion": "asdg",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comment": "asdg"
+    },
+    {
+      "id": "002f",
+      "airlineName": "asdg",
+      "customerCode": "asdg",
+      "iataCode": "asdgf",
+      "businessRegistrationNumber": "asdf",
+      "countryRegion": "asdg",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comment": "asdf"
+    },
+    {
+      "id": "5dca",
+      "airlineName": "asdf",
+      "customerCode": "asdf",
+      "iataCode": "asdf",
+      "businessRegistrationNumber": "asdf",
+      "countryRegion": "asdf",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comment": "asdwe"
+    }
+  ]
+}

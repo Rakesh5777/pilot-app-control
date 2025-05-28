@@ -15,11 +15,18 @@ import {
   Textarea,
   VStack,
   createListCollection,
+  Box,
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useForm, Controller } from "react-hook-form";
+import { addCustomer } from "@/axios/customerApi";
+import { useNavigate } from "react-router-dom";
 
-interface FormData {
+export interface CommentItem {
+  comment: string;
+  time: string;
+}
+export interface FormData {
   airlineName: string;
   customerCode: string;
   iataCode: string;
@@ -28,7 +35,7 @@ interface FormData {
   fleetSize: string;
   industry: string;
   customerType: string;
-  comment: string;
+  comments: CommentItem[];
 }
 
 const industryOptionsArray = [
@@ -58,6 +65,9 @@ const AddCustomerForm: React.FC = () => {
     control,
     reset,
     formState: { errors },
+    setValue,
+    getValues,
+    watch,
   } = useForm<FormData>({
     defaultValues: {
       airlineName: "",
@@ -68,18 +78,38 @@ const AddCustomerForm: React.FC = () => {
       fleetSize: "1",
       industry: "Airline",
       customerType: "Lead",
-      comment: "",
+      comments: [
+        { comment: "", time: new Date().toISOString() }, // Add one comment by default
+      ],
     },
     mode: "onTouched",
   });
 
-  const onSubmit = (formData: FormData) => {
-    console.log("Form submitted successfully:", formData);
-    toaster.create({
-      title: "Customer Added.",
-      description: "The new customer data has been prepared.",
-      type: "success",
-    });
+  const navigate = useNavigate();
+
+  const onSubmit = async (formData: FormData) => {
+    // Filter out empty or whitespace-only comments before submit
+    const filteredComments = (formData.comments || []).filter(
+      (c) => c.comment && c.comment.trim() !== ""
+    );
+    const submitData = { ...formData, comments: filteredComments };
+    try {
+      await addCustomer(submitData);
+      toaster.create({
+        title: "Customer Added.",
+        description: "The new customer data has been saved.",
+        type: "success",
+      });
+      reset();
+      navigate("/customers");
+    } catch (error) {
+      console.error("Error saving customer data:", error);
+      toaster.create({
+        title: "Error",
+        description: "Failed to save customer data.",
+        type: "error",
+      });
+    }
   };
 
   const onError = () => {
@@ -96,6 +126,24 @@ const AddCustomerForm: React.FC = () => {
       description: "Form has been reset.",
       type: "info",
     });
+  };
+
+  const comments = watch("comments");
+
+  const addCommentField = () => {
+    const current = getValues("comments") || [];
+    setValue("comments", [
+      ...current,
+      { comment: "", time: new Date().toISOString() },
+    ]);
+  };
+
+  const removeCommentField = (idx: number) => {
+    const current = getValues("comments") || [];
+    setValue(
+      "comments",
+      current.filter((_, i) => i !== idx)
+    );
   };
 
   return (
@@ -115,7 +163,12 @@ const AddCustomerForm: React.FC = () => {
         <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
           <GridItem>
             <Field.Root id="airlineName" invalid={!!errors.airlineName}>
-              <Field.Label fontWeight="semibold">Airline Name</Field.Label>
+              <Field.Label fontWeight="semibold">
+                Airline Name{" "}
+                <Text as="span" color="red.500">
+                  *
+                </Text>
+              </Field.Label>
               <Controller
                 name="airlineName"
                 control={control}
@@ -127,7 +180,12 @@ const AddCustomerForm: React.FC = () => {
           </GridItem>
           <GridItem>
             <Field.Root id="customerCode" invalid={!!errors.customerCode}>
-              <Field.Label fontWeight="semibold">Customer Code</Field.Label>
+              <Field.Label fontWeight="semibold">
+                Customer Code{" "}
+                <Text as="span" color="red.500">
+                  *
+                </Text>
+              </Field.Label>
               <Controller
                 name="customerCode"
                 control={control}
@@ -143,7 +201,7 @@ const AddCustomerForm: React.FC = () => {
               <Controller
                 name="iataCode"
                 control={control}
-                rules={{ required: "IATA Code is required." }}
+                rules={{ required: false }}
                 render={({ field }) => (
                   <Input
                     {...field}
@@ -166,9 +224,7 @@ const AddCustomerForm: React.FC = () => {
               <Controller
                 name="businessRegistrationNumber"
                 control={control}
-                rules={{
-                  required: "Business Registration Number is required.",
-                }}
+                rules={{ required: false }}
                 render={({ field }) => <Input {...field} borderRadius="md" />}
               />
               <Field.ErrorText>
@@ -184,7 +240,7 @@ const AddCustomerForm: React.FC = () => {
               <Controller
                 name="countryRegion"
                 control={control}
-                rules={{ required: "Country/Region of Operation is required." }}
+                rules={{ required: false }}
                 render={({ field }) => <Input {...field} borderRadius="md" />}
               />
               <Field.ErrorText>{errors.countryRegion?.message}</Field.ErrorText>
@@ -196,16 +252,7 @@ const AddCustomerForm: React.FC = () => {
               <Controller
                 name="fleetSize"
                 control={control}
-                rules={{
-                  required: "Fleet Size is required.",
-                  validate: (value) => {
-                    if (!value || value.trim() === "")
-                      return "Fleet Size is required.";
-                    if (isNaN(parseInt(value)) || parseInt(value) <= 0)
-                      return "Fleet Size must be a positive number.";
-                    return true;
-                  },
-                }}
+                rules={{ required: false, validate: undefined }}
                 render={({ field }) => (
                   <NumberInput.Root
                     value={field.value}
@@ -229,7 +276,7 @@ const AddCustomerForm: React.FC = () => {
               <Controller
                 name="industry"
                 control={control}
-                rules={{ required: "Industry is required." }}
+                rules={{ required: false }}
                 render={({ field }) => (
                   <Select.Root
                     value={[field.value]}
@@ -260,7 +307,12 @@ const AddCustomerForm: React.FC = () => {
           </GridItem>
           <GridItem colSpan={2}>
             <Fieldset.Root invalid={!!errors.customerType}>
-              <Fieldset.Legend>Customer Type</Fieldset.Legend>
+              <Fieldset.Legend>
+                Customer Type{" "}
+                <Text as="span" color="red.500">
+                  *
+                </Text>
+              </Fieldset.Legend>
               <Controller
                 name="customerType"
                 control={control}
@@ -291,22 +343,69 @@ const AddCustomerForm: React.FC = () => {
             </Fieldset.Root>
           </GridItem>
           <GridItem colSpan={2}>
-            <Field.Root id="comment" invalid={!!errors.comment}>
-              <Field.Label fontWeight="semibold">Comment</Field.Label>
-              <Controller
-                name="comment"
-                control={control}
-                rules={{
-                  maxLength: {
-                    value: 500,
-                    message: "Comment cannot exceed 500 characters.",
-                  },
-                }}
-                render={({ field }) => (
-                  <Textarea {...field} rows={4} borderRadius="md" />
-                )}
-              />
-              <Field.ErrorText>{errors.comment?.message}</Field.ErrorText>
+            <Field.Root id="comments" invalid={!!errors.comments}>
+              <Field.Label fontWeight="semibold">Comments</Field.Label>
+              <Box maxH="180px" overflowY="auto" width="100%" pr={3}>
+                <VStack align="stretch" gap={2} width="100%">
+                  {comments && comments.length > 0 ? (
+                    comments.map((item, idx) => (
+                      <HStack key={idx} align="start" gap={2} width="100%">
+                        <Controller
+                          name={`comments.${idx}.comment` as const}
+                          control={control}
+                          rules={{
+                            maxLength: {
+                              value: 500,
+                              message: "Comment cannot exceed 500 characters.",
+                            },
+                          }}
+                          render={({ field }) => (
+                            <Textarea
+                              {...field}
+                              rows={3}
+                              borderRadius="md"
+                              placeholder="Enter comment..."
+                              width="100%"
+                              minW={0}
+                              resize="vertical"
+                            />
+                          )}
+                        />
+                        <Text fontSize="xs" color="gray.500" minW="120px">
+                          {item.time
+                            ? new Date(item.time).toLocaleString()
+                            : ""}
+                        </Text>
+                        <Button
+                          size="sm"
+                          colorScheme="red"
+                          onClick={() => removeCommentField(idx)}
+                        >
+                          Remove
+                        </Button>
+                      </HStack>
+                    ))
+                  ) : (
+                    <Text color="gray.400" fontSize="sm">
+                      No comments yet.
+                    </Text>
+                  )}
+                </VStack>
+              </Box>
+              <Button
+                size="sm"
+                onClick={addCommentField}
+                variant="outline"
+                alignSelf="start"
+                mt={2}
+              >
+                Add Comment
+              </Button>
+              <Field.ErrorText>
+                {Array.isArray(errors.comments)
+                  ? errors.comments.find((e) => e)?.message
+                  : errors.comments?.message}
+              </Field.ErrorText>
             </Field.Root>
           </GridItem>
         </Grid>
@@ -319,7 +418,7 @@ const AddCustomerForm: React.FC = () => {
           >
             Cancel
           </Button>
-          <Button type="submit" colorScheme="teal" minWidth="100px">
+          <Button type="submit" minWidth="100px">
             Next
           </Button>
         </HStack>
