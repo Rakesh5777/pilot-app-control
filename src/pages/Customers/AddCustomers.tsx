@@ -78,9 +78,7 @@ const AddCustomerForm: React.FC = () => {
       fleetSize: "1",
       industry: "Airline",
       customerType: "Lead",
-      comments: [
-        { comment: "", time: new Date().toISOString() }, // Add one comment by default
-      ],
+      comments: [{ comment: "", time: new Date().toISOString() }],
     },
     mode: "onTouched",
   });
@@ -88,7 +86,6 @@ const AddCustomerForm: React.FC = () => {
   const navigate = useNavigate();
 
   const onSubmit = async (formData: FormData) => {
-    // Filter out empty or whitespace-only comments before submit
     const filteredComments = (formData.comments || []).filter(
       (c) => c.comment && c.comment.trim() !== ""
     );
