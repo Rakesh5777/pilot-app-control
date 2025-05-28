@@ -114,7 +114,11 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customers, loadin
   const filtered = useMemo(() => {
     if (!search) return customers;
     return customers.filter((c) =>
-      Object.values(c).some((v) => v.toLowerCase().includes(search.toLowerCase()))
+      Object.values(c).some((v) =>
+        String(v || "")
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      )
     );
   }, [customers, search]);
 
