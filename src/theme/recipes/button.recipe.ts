@@ -76,6 +76,10 @@ export const buttonRecipe = defineRecipe({
         _hover: { bg: "status.error.600" },
         _active: { bg: "status.error.700" },
       },
+      plain: {
+        bg: "transparent",
+        color: "primary.bg",
+      },
     },
     size: {
       xs: {

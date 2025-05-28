@@ -21,6 +21,7 @@ import { toaster } from "@/components/ui/toaster";
 import { useForm, Controller } from "react-hook-form";
 import { addCustomer } from "@/axios/customerApi";
 import { useNavigate } from "react-router-dom";
+import { IoArrowBack } from "react-icons/io5";
 
 export interface CommentItem {
   comment: string;
@@ -146,15 +147,25 @@ const AddCustomerForm: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit, onError)}
-      style={{ maxWidth: 900, margin: "32px 0 32px 40px", padding: 16 }}
+      style={{ maxWidth: 900, margin: "8px 0 8px 16px", padding: 16 }}
     >
-      <HStack mb={6} alignItems="center">
+      <HStack mb={6} alignItems="center" gap={0}>
+        <Button
+          padding={0}
+          variant="plain"
+          size="sm"
+          onClick={() => navigate(-1)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+          }}
+        >
+          <IoArrowBack />
+        </Button>
         <Heading size="lg" color="gray.700">
           Add Customer
         </Heading>
-        <Text fontSize="xl" color="gray.500">
-          Basic
-        </Text>
       </HStack>
       <VStack gap={6} align="stretch">
         <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
