@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { routes } from "./routes";
 import { ChakraProvider } from "@chakra-ui/react";
 import system from "@/theme";
+import { Toaster } from "./components/ui/toaster";
 
 const router = createBrowserRouter(routes);
 
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ChakraProvider value={system}>
       <ThemeProvider forcedTheme="light" attribute="class" enableSystem={false}>
         <RouterProvider router={router} />
+        <Toaster />
       </ThemeProvider>
     </ChakraProvider>
   </React.StrictMode>
