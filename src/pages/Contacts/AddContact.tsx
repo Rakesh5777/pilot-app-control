@@ -72,7 +72,7 @@ function getErrorMessage(error: unknown): string | undefined {
 const AddContact: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { customerData, resetStore } = useCreationStore();
+  const { customerData } = useCreationStore();
   const [selectedCustomerCode, setSelectedCustomerCode] = useState<
     string | undefined
   >(customerData?.customerCode);
@@ -147,8 +147,13 @@ const AddContact: React.FC = () => {
         description: `Successfully saved ${data.contacts.length} contact(s) for the customer.`,
         type: "success",
       });
-      resetStore();
-      navigate(isCustomerCreationFlow ? "/customers" : "/contacts");
+      // resetStore(); // Reset store only at the end of the entire flow
+      if (isCustomerCreationFlow) {
+        // Navigate to checklist page if in customer creation flow
+        navigate("/customers/add/checklist");
+      } else {
+        navigate("/contacts");
+      }
     } catch (error) {
       console.error("Error saving data:", error);
       toaster.create({
