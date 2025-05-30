@@ -19,10 +19,9 @@ import {
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useForm, Controller } from "react-hook-form";
-// Removed addCustomer from here, will be handled in AddContact if needed or a combined save
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
-import { useCreationStore } from "@/store/creationStore"; // Import Zustand store
+import { useCreationStore } from "@/store/creationStore";
 import { addCustomer } from "@/axios/customerApi";
 
 export interface CommentItem {
@@ -30,8 +29,7 @@ export interface CommentItem {
   time: string;
 }
 export interface FormData {
-  // This is CustomerFormData
-  id?: string; // Added for consistency if we ever fetch/edit
+  id?: string;
   airlineName: string;
   customerCode: string;
   iataCode: string;
@@ -64,6 +62,7 @@ const customerTypeOptions = [
   { value: "Live Demc", label: "Live Demc" },
 ];
 
+// Customer form for adding a new customer
 const AddCustomerForm: React.FC = () => {
   const {
     handleSubmit,
@@ -89,30 +88,25 @@ const AddCustomerForm: React.FC = () => {
   });
 
   const navigate = useNavigate();
-  const { setCustomerData, resetContactDataList } = useCreationStore(); // Get store actions
+  const { setCustomerData, resetContactDataList } = useCreationStore();
+  const comments = watch("comments");
 
-  // Replace onSubmit with async version that saves customer and navigates with id
+  // Save customer and navigate to add contacts
   const onSubmit = async (formData: FormData) => {
-    // Filter out empty comments before storing
     const filteredComments = (formData.comments || []).filter(
       (c) => c.comment && c.comment.trim() !== ""
     );
     const customerDataToStore = { ...formData, comments: filteredComments };
-
     try {
-      // Save customer to backend
       const savedCustomer = await addCustomer(customerDataToStore);
-      setCustomerData(savedCustomer); // Store full customer data (with id/code)
-      resetContactDataList(); // Reset any previous contact list
+      setCustomerData(savedCustomer);
+      resetContactDataList();
       toaster.create({
         title: "Customer Saved",
         description: "Proceed to add contacts.",
         type: "success",
       });
-      // Navigate to AddContact with customer id as param
-      navigate(
-        `/customers/add/contact?customerId=${savedCustomer.customerCode}`
-      );
+      navigate(`./contact`);
     } catch {
       toaster.create({
         title: "Error",
@@ -130,9 +124,10 @@ const AddCustomerForm: React.FC = () => {
     });
   };
 
+  // Reset form and store on cancel
   const handleCancel = () => {
     reset();
-    useCreationStore.getState().resetStore(); // Clear store on cancel
+    useCreationStore.getState().resetStore();
     toaster.create({
       description: "Form has been reset.",
       type: "info",
@@ -140,8 +135,7 @@ const AddCustomerForm: React.FC = () => {
     navigate("/customers");
   };
 
-  const comments = watch("comments");
-
+  // Add a new comment field
   const addCommentField = () => {
     const current = getValues("comments") || [];
     setValue("comments", [
@@ -150,6 +144,7 @@ const AddCustomerForm: React.FC = () => {
     ]);
   };
 
+  // Remove a comment field by index
   const removeCommentField = (idx: number) => {
     const current = getValues("comments") || [];
     setValue(
@@ -185,8 +180,9 @@ const AddCustomerForm: React.FC = () => {
         </Heading>
       </HStack>
       <VStack gap={6} align="stretch">
-        {/* Customer Form Fields (Grid) - No change to this section, keeping it as is from your file */}
+        {/* Customer Form Fields */}
         <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
+          {/* Airline Name */}
           <GridItem>
             <Field.Root id="airlineName" invalid={!!errors.airlineName}>
               <Field.Label fontWeight="semibold">
@@ -204,6 +200,7 @@ const AddCustomerForm: React.FC = () => {
               <Field.ErrorText>{errors.airlineName?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
+          {/* Customer Code */}
           <GridItem>
             <Field.Root id="customerCode" invalid={!!errors.customerCode}>
               <Field.Label fontWeight="semibold">
@@ -221,6 +218,7 @@ const AddCustomerForm: React.FC = () => {
               <Field.ErrorText>{errors.customerCode?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
+          {/* IATA Code */}
           <GridItem>
             <Field.Root id="iataCode" invalid={!!errors.iataCode}>
               <Field.Label fontWeight="semibold">IATA Code</Field.Label>
@@ -239,6 +237,7 @@ const AddCustomerForm: React.FC = () => {
               <Field.ErrorText>{errors.iataCode?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
+          {/* Business Registration Number */}
           <GridItem>
             <Field.Root
               id="businessRegNum"
@@ -258,6 +257,7 @@ const AddCustomerForm: React.FC = () => {
               </Field.ErrorText>
             </Field.Root>
           </GridItem>
+          {/* Country/Region */}
           <GridItem>
             <Field.Root id="countryRegion" invalid={!!errors.countryRegion}>
               <Field.Label fontWeight="semibold">
@@ -272,6 +272,7 @@ const AddCustomerForm: React.FC = () => {
               <Field.ErrorText>{errors.countryRegion?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
+          {/* Fleet Size */}
           <GridItem>
             <Field.Root id="fleetSize" invalid={!!errors.fleetSize}>
               <Field.Label fontWeight="semibold">Fleet Size</Field.Label>
@@ -296,6 +297,7 @@ const AddCustomerForm: React.FC = () => {
               <Field.ErrorText>{errors.fleetSize?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
+          {/* Industry */}
           <GridItem colSpan={{ base: 1, md: 2 }}>
             <Field.Root id="industry" invalid={!!errors.industry}>
               <Field.Label fontWeight="semibold">Industry</Field.Label>
@@ -331,6 +333,7 @@ const AddCustomerForm: React.FC = () => {
               <Field.ErrorText>{errors.industry?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
+          {/* Customer Type */}
           <GridItem colSpan={{ base: 1, md: 2 }}>
             <Fieldset.Root invalid={!!errors.customerType}>
               <Fieldset.Legend>
@@ -368,6 +371,7 @@ const AddCustomerForm: React.FC = () => {
               </Fieldset.ErrorText>
             </Fieldset.Root>
           </GridItem>
+          {/* Comments */}
           <GridItem colSpan={{ base: 1, md: 2 }}>
             <Field.Root id="comments" invalid={!!errors.comments}>
               <Field.Label fontWeight="semibold">Comments</Field.Label>
@@ -406,11 +410,11 @@ const AddCustomerForm: React.FC = () => {
                           size="sm"
                           colorScheme="red"
                           onClick={() => removeCommentField(idx)}
-                          isDisabled={
+                          disabled={
                             comments.length <= 1 &&
                             idx === 0 &&
                             !comments[idx].comment
-                          } // Disable if it's the only empty comment
+                          }
                         >
                           Remove
                         </Button>
@@ -446,11 +450,11 @@ const AddCustomerForm: React.FC = () => {
             minWidth="100px"
             onClick={handleCancel}
             type="button"
-            isDisabled={isSubmitting}
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
-          <Button type="submit" minWidth="100px" isLoading={isSubmitting}>
+          <Button type="submit" minWidth="100px" loading={isSubmitting}>
             Save & Next
           </Button>
         </HStack>

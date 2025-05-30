@@ -30,7 +30,6 @@ import { addCustomer } from "@/axios/customerApi";
 import { addContact } from "@/axios/contactApi";
 import { getCustomers } from "@/axios/customerApi";
 import type { FormData } from "@/pages/Customers/AddCustomers";
-import type { Control, FieldErrors } from "react-hook-form";
 
 export interface PhoneNumber {
   type: string;
@@ -72,122 +71,13 @@ function getErrorMessage(error: unknown): string | undefined {
   return undefined;
 }
 
-// PhoneNumbersFieldArray component for nested phone numbers
-const PhoneNumbersFieldArray: React.FC<{
-  nestIndex: number;
-  control: Control<{ contacts: ContactFormData[] }>;
-  errors: FieldErrors<{ contacts: ContactFormData[] }>;
-}> = ({ nestIndex, control, errors }) => {
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: `contacts.${nestIndex}.phoneNumbers` as const,
-  });
-  return (
-    <VStack align="stretch" gap={3} mt={4}>
-      <Heading size="sm" color="gray.600">
-        Phone Numbers
-      </Heading>
-      {fields.map((phone, pIdx) => (
-        <HStack key={phone.id} gap={2} alignItems="flex-end">
-          <Box flex={1}>
-            <Field.Root
-              id={`contacts.${nestIndex}.phoneNumbers.${pIdx}.type`}
-              invalid={
-                !!errors?.contacts?.[nestIndex]?.phoneNumbers?.[pIdx]?.type
-              }
-            >
-              <Field.Label srOnly>Phone Type</Field.Label>
-              <Controller
-                name={`contacts.${nestIndex}.phoneNumbers.${pIdx}.type`}
-                control={control}
-                rules={{ required: "Type is required" }}
-                render={({ field: phoneTypeField }) => (
-                  <Select.Root
-                    value={[phoneTypeField.value]}
-                    onValueChange={(details) =>
-                      phoneTypeField.onChange(details.value[0] || "")
-                    }
-                    collection={phoneTypeOptions}
-                  >
-                    <Select.Trigger borderRadius="md">
-                      <Select.ValueText placeholder="Select type" />
-                    </Select.Trigger>
-                    <Select.Positioner>
-                      <Select.Content>
-                        {phoneTypeOptionsArray.map((opt) => (
-                          <Select.Item key={opt.value} item={opt}>
-                            <Select.ItemText>{opt.label}</Select.ItemText>
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select.Positioner>
-                  </Select.Root>
-                )}
-              />
-              {errors?.contacts?.[nestIndex]?.phoneNumbers?.[pIdx]?.type && (
-                <Field.ErrorText>
-                  {getErrorMessage(
-                    errors.contacts[nestIndex]?.phoneNumbers?.[pIdx]?.type
-                  )}
-                </Field.ErrorText>
-              )}
-            </Field.Root>
-          </Box>
-          <Box flex={2}>
-            <Field.Root
-              id={`contacts.${nestIndex}.phoneNumbers.${pIdx}.number`}
-              invalid={
-                !!errors?.contacts?.[nestIndex]?.phoneNumbers?.[pIdx]?.number
-              }
-            >
-              <Field.Label srOnly>Phone Number</Field.Label>
-              <Controller
-                name={`contacts.${nestIndex}.phoneNumbers.${pIdx}.number`}
-                control={control}
-                rules={{ required: "Number is required" }}
-                render={({ field: phoneNumField }) => (
-                  <Input
-                    {...phoneNumField}
-                    placeholder="Phone Number"
-                    borderRadius="md"
-                  />
-                )}
-              />
-            </Field.Root>
-          </Box>
-          <IconButton
-            aria-label="Remove phone number"
-            children={<IoRemoveCircleOutline />}
-            variant="ghost"
-            colorScheme="red"
-            onClick={() => remove(pIdx)}
-            disabled={fields.length <= 1}
-          />
-        </HStack>
-      ))}
-      <Button
-        onClick={() => append({ type: "Work", number: "" })}
-        variant="outline"
-        size="sm"
-        alignSelf="flex-start"
-      >
-        <IoAddCircleOutline style={{ marginRight: 4 }} />
-        Add Phone Number
-      </Button>
-    </VStack>
-  );
-};
-
 const AddContact: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
   const { customerData, resetStore } = useCreationStore();
-  // Set customer code from query param if present
-  const customerIdFromQuery = searchParams.get("customerId");
   const [selectedCustomerCode, setSelectedCustomerCode] = useState<
     string | undefined
-  >(customerIdFromQuery || customerData?.customerCode);
+  >(customerData?.customerCode);
   const [customerOptions, setCustomerOptions] = useState<
     { value: string; label: string }[]
   >([]);
@@ -204,15 +94,6 @@ const AddContact: React.FC = () => {
       }
     );
   }, []);
-
-  useEffect(() => {
-    // If customerId is in query, set it as selected
-    if (customerIdFromQuery) {
-      setSelectedCustomerCode(customerIdFromQuery);
-    } else if (customerData?.customerCode) {
-      setSelectedCustomerCode(customerData.customerCode);
-    }
-  }, [customerIdFromQuery, customerData]);
 
   const {
     handleSubmit,
@@ -241,12 +122,6 @@ const AddContact: React.FC = () => {
   const isCustomerCreationFlow = location.pathname.includes(
     "/customers/add/contact"
   );
-
-  useEffect(() => {
-    if (customerData?.customerCode) {
-      setSelectedCustomerCode(customerData.customerCode);
-    }
-  }, [customerData]);
 
   const createCustomerAndGetCode = async (
     customerData: FormData
@@ -574,11 +449,124 @@ const AddContact: React.FC = () => {
                 </Fieldset.Root>
               </GridItem>
             </Grid>
-            <PhoneNumbersFieldArray
-              nestIndex={idx}
-              control={control}
-              errors={errors}
-            />
+            {/* Phone Numbers */}
+            <VStack align="stretch" gap={3} mt={4}>
+              <Heading size="sm" color="gray.600">
+                Phone Numbers
+              </Heading>
+              <Controller
+                name={`contacts.${idx}.phoneNumbers`}
+                control={control}
+                render={({ field }) => (
+                  <>
+                    {field.value.map((phone: PhoneNumber, pIdx: number) => (
+                      <HStack key={pIdx} gap={2} alignItems="flex-end">
+                        <Box flex={1}>
+                          <Field.Root
+                            id={`contacts.${idx}.phoneNumbers.${pIdx}.type`}
+                            invalid={
+                              !!errors.contacts?.[idx]?.phoneNumbers?.[pIdx]
+                                ?.type
+                            }
+                          >
+                            <Field.Label srOnly>Phone Type</Field.Label>
+                            <Controller
+                              name={`contacts.${idx}.phoneNumbers.${pIdx}.type`}
+                              control={control}
+                              rules={{ required: "Type is required" }}
+                              render={({ field: phoneTypeField }) => (
+                                <Select.Root
+                                  value={[phoneTypeField.value]}
+                                  onValueChange={(details) =>
+                                    phoneTypeField.onChange(
+                                      details.value[0] || ""
+                                    )
+                                  }
+                                  collection={phoneTypeOptions}
+                                >
+                                  <Select.Trigger borderRadius="md">
+                                    <Select.ValueText placeholder="Select type" />
+                                  </Select.Trigger>
+                                  <Select.Positioner>
+                                    <Select.Content>
+                                      {phoneTypeOptionsArray.map((opt) => (
+                                        <Select.Item key={opt.value} item={opt}>
+                                          <Select.ItemText>
+                                            {opt.label}
+                                          </Select.ItemText>
+                                        </Select.Item>
+                                      ))}
+                                    </Select.Content>
+                                  </Select.Positioner>
+                                </Select.Root>
+                              )}
+                            />
+                            {errors.contacts?.[idx]?.phoneNumbers?.[pIdx]
+                              ?.type && (
+                              <Field.ErrorText>
+                                {getErrorMessage(
+                                  errors.contacts[idx]?.phoneNumbers?.[pIdx]
+                                    ?.type
+                                )}
+                              </Field.ErrorText>
+                            )}
+                          </Field.Root>
+                        </Box>
+                        <Box flex={2}>
+                          <Field.Root
+                            id={`contacts.${idx}.phoneNumbers.${pIdx}.number`}
+                            invalid={
+                              !!errors.contacts?.[idx]?.phoneNumbers?.[pIdx]
+                                ?.number
+                            }
+                          >
+                            <Field.Label srOnly>Phone Number</Field.Label>
+                            <Controller
+                              name={`contacts.${idx}.phoneNumbers.${pIdx}.number`}
+                              control={control}
+                              rules={{ required: "Number is required" }}
+                              render={({ field: phoneNumField }) => (
+                                <Input
+                                  {...phoneNumField}
+                                  placeholder="Phone Number"
+                                  borderRadius="md"
+                                />
+                              )}
+                            />
+                          </Field.Root>
+                        </Box>
+                        <IconButton
+                          aria-label="Remove phone number"
+                          children={<IoRemoveCircleOutline />}
+                          variant="ghost"
+                          colorScheme="red"
+                          onClick={() => {
+                            const newPhones = [...field.value];
+                            newPhones.splice(pIdx, 1);
+                            field.onChange(newPhones);
+                          }}
+                          disabled={field.value.length <= 1}
+                        />
+                      </HStack>
+                    ))}
+                    <Button
+                      onClick={() =>
+                        field.onChange([
+                          ...field.value,
+                          { type: "Work", number: "" },
+                        ])
+                      }
+                      variant="outline"
+                      size="sm"
+                      alignSelf="flex-start"
+                    >
+                      <IoAddCircleOutline style={{ marginRight: 4 }} />
+                      Add Phone Number
+                    </Button>
+                  </>
+                )}
+              />
+            </VStack>
           </Box>
         ))}
         <Button

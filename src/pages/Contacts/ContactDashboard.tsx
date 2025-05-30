@@ -13,6 +13,7 @@ interface ContactDashboardProps {
 
 const PAGE_SIZE = 10;
 
+// Header for the Contacts Dashboard with search and customer filter
 const ContactHeader: React.FC<{
   search: string;
   onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -62,6 +63,7 @@ const ContactHeader: React.FC<{
   )
 );
 
+// Table for displaying contacts with pagination
 const ContactTable: React.FC<{
   contacts: (Contact & { customerName?: string })[];
   loading: boolean;
@@ -145,6 +147,7 @@ const ContactTable: React.FC<{
   </>
 ));
 
+// Main Contacts Dashboard component
 const ContactDashboard: React.FC<ContactDashboardProps> = ({
   contacts,
   loading,
@@ -173,6 +176,7 @@ const ContactDashboard: React.FC<ContactDashboardProps> = ({
     });
   }, []);
 
+  // Add customerName to each contact for display
   const contactsWithCustomerName = useMemo(() => {
     return contacts.map((contact) => ({
       ...contact,
@@ -182,6 +186,7 @@ const ContactDashboard: React.FC<ContactDashboardProps> = ({
     }));
   }, [contacts, customersMap]);
 
+  // Filter contacts by customer and search
   const filtered = useMemo(() => {
     let result = contactsWithCustomerName;
     if (customerFilter) {

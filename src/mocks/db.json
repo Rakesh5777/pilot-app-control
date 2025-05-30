@@ -1,115 +1,45 @@
 {
   "customers": [
     {
-      "id": "8bd3",
-      "airlineName": "super",
-      "customerCode": "123",
-      "iataCode": "123",
-      "businessRegistrationNumber": "234",
-      "countryRegion": "234",
-      "fleetSize": "1",
-      "industry": "Airline",
-      "customerType": "Lead",
-      "comment": "wow this is super"
-    },
-    {
-      "id": "f033",
-      "airlineName": "asdfasdf",
-      "customerCode": "asdfa",
-      "iataCode": "asdfasdf",
-      "businessRegistrationNumber": "asdfasdf",
-      "countryRegion": "asdf",
-      "fleetSize": "1",
-      "industry": "Airline",
-      "customerType": "Lead",
-      "comment": "asdf"
-    },
-    {
-      "id": "883c",
-      "airlineName": "asdgsdf",
-      "customerCode": "asdgas",
-      "iataCode": "asdg",
-      "businessRegistrationNumber": "asdgasdg",
-      "countryRegion": "asdfasdf",
-      "fleetSize": "1",
-      "industry": "Airline",
-      "customerType": "Lead",
-      "comment": "asdgasdgsad"
-    },
-    {
-      "id": "002f",
-      "airlineName": "asdg",
-      "customerCode": "asdg",
-      "iataCode": "asdgf",
-      "businessRegistrationNumber": "asdf",
-      "countryRegion": "asdg",
-      "fleetSize": "1",
-      "industry": "Airline",
-      "customerType": "Lead",
-      "comment": "asdf"
-    },
-    {
-      "id": "5dca",
-      "airlineName": "asdf",
-      "customerCode": "asdf",
-      "iataCode": "asdf",
-      "businessRegistrationNumber": "asdf",
-      "countryRegion": "asdf",
-      "fleetSize": "1",
-      "industry": "Airline",
-      "customerType": "Lead",
-      "comment": "asdwe"
-    },
-    {
-      "id": "a207",
-      "airlineName": "something",
-      "customerCode": "1234",
-      "iataCode": "",
-      "businessRegistrationNumber": "",
-      "countryRegion": "",
-      "fleetSize": "1",
-      "industry": "Airline",
-      "customerType": "Lead",
-      "comments": []
-    },
-    {
-      "id": "ed16",
-      "airlineName": "rakesh123412",
-      "customerCode": "1412f3",
-      "iataCode": "asdf",
-      "businessRegistrationNumber": "",
-      "countryRegion": "",
+      "id": "12e9",
+      "airlineName": "Indigo",
+      "customerCode": "Indigo",
+      "iataCode": "indigo",
+      "businessRegistrationNumber": "123",
+      "countryRegion": "india",
       "fleetSize": "1",
       "industry": "Airline",
       "customerType": "Lead",
       "comments": [
         {
-          "comment": "asdfwegqwefdsa",
-          "time": "2025-05-30T20:42:41.623Z"
+          "comment": "super",
+          "time": "2025-05-30T22:58:26.035Z"
+        }
+      ]
+    },
+    {
+      "id": "12e9",
+      "airlineName": "Indigo",
+      "customerCode": "Indigo",
+      "iataCode": "indigo",
+      "businessRegistrationNumber": "123",
+      "countryRegion": "india",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": [
+        {
+          "comment": "super",
+          "time": "2025-05-30T22:58:26.035Z"
         }
       ]
     }
   ],
   "contacts": [
     {
-      "id": "28aa",
-      "firstName": "rakesh1",
-      "lastName": "reddy1",
-      "emailAddress": "rakeshreddy.k5777@gmail.com",
-      "isPrimary": true,
-      "phoneNumbers": [
-        {
-          "type": "Work",
-          "number": "142313"
-        }
-      ],
-      "customerId": "123",
-      "customerName": "super"
-    },
-    {
-      "id": "c240",
-      "firstName": "rakesh2",
-      "lastName": "reddy2",
+      "id": "341b",
+      "firstName": "Rakesh",
+      "lastName": "Reddy",
       "emailAddress": "rakeshreddy.k5777@gmail.com",
       "isPrimary": false,
       "phoneNumbers": [
@@ -118,23 +48,8 @@
           "number": "123"
         }
       ],
-      "customerId": "123",
-      "customerName": "super"
-    },
-    {
-      "id": "ff66",
-      "firstName": "rakesh3",
-      "lastName": "reddy3",
-      "emailAddress": "rakeshreddy.k5777@gmail.com",
-      "isPrimary": true,
-      "phoneNumbers": [
-        {
-          "type": "Work",
-          "number": "123"
-        }
-      ],
-      "customerId": "asdgas",
-      "customerName": "asdgsdf"
+      "customerId": "Indigo",
+      "customerName": "Indigo"
     }
   ]
 }

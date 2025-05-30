@@ -1,6 +1,6 @@
 import React, { type JSX } from "react";
 import { FaUsers, FaAddressCard } from "react-icons/fa"; // Added FaAddressCard
-import { useLocation } from "react-router-dom"; // Import useLocation
+import { useLocation, useNavigate } from "react-router-dom"; // Import useLocation and useNavigate
 
 interface NavItem {
   name: string;
@@ -31,6 +31,7 @@ const navItems: NavItem[] = [
 
 const SideNav: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const activePath = location.pathname;
 
   return (
@@ -42,11 +43,17 @@ const SideNav: React.FC = () => {
       </div>
       <nav className="flex-grow p-4 space-y-2">
         {navItems.map((item) => (
-          <a
+          <button
             key={item.name}
-            href={item.path}
+            type="button"
+            onClick={() => {
+              if (activePath !== item.path) {
+                navigate(item.path);
+              }
+            }}
             className={`
-              flex items-center px-3 py-2 rounded-md text-sm font-medium
+              w-full flex items-center px-3 py-2 rounded-md text-sm font-medium
+              cursor-pointer
               ${
                 activePath.startsWith(item.path)
                   ? "bg-accent text-accent-foreground"
@@ -54,10 +61,11 @@ const SideNav: React.FC = () => {
               }
               transition-colors duration-150
             `}
+            style={{ justifyContent: "flex-start" }}
           >
             {item.icon && <span className="mr-2">{item.icon}</span>}
             {item.name}
-          </a>
+          </button>
         ))}
       </nav>
     </div>
