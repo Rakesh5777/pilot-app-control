@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
-import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   IoArrowBack,
   IoAddCircleOutline,
@@ -26,10 +26,8 @@ import {
   IoTrashOutline,
 } from "react-icons/io5";
 import { useCreationStore } from "@/store/creationStore";
-import { addCustomer } from "@/axios/customerApi";
 import { addContact } from "@/axios/contactApi";
 import { getCustomers } from "@/axios/customerApi";
-import type { FormData } from "@/pages/Customers/AddCustomers";
 
 export interface PhoneNumber {
   type: string;
@@ -123,63 +121,27 @@ const AddContact: React.FC = () => {
     "/customers/add/contact"
   );
 
-  const createCustomerAndGetCode = async (
-    customerData: FormData
-  ): Promise<{ code?: string }> => {
+  const onSubmit = async (data: { contacts: ContactFormData[] }) => {
     try {
-      const savedCustomer = await addCustomer(customerData);
-      toaster.create({
-        title: "Customer Added.",
-        description: "The new customer data has been saved.",
-        type: "success",
-      });
-      return { code: savedCustomer.customerCode };
-    } catch (error) {
-      console.error("Error creating customer:", error);
-      toaster.create({
-        title: "Error",
-        description: "Failed to create customer.",
-        type: "error",
-      });
-      return {};
-    }
-  };
-
-  const ensureCustomerCode = (customerCode?: string) => {
-    if (!customerCode) {
-      toaster.create({
-        title: "Error",
-        description: "Customer Code is missing.",
-        type: "error",
-      });
-      return false;
-    }
-    return true;
-  };
-
-  const handleFinalSave = async (data: { contacts: ContactFormData[] }) => {
-    try {
-      let newCustomerCode = selectedCustomerCode;
-      if (isCustomerCreationFlow && customerData) {
-        const result = await createCustomerAndGetCode(customerData as FormData);
-        newCustomerCode = result.code;
-        if (!newCustomerCode) return;
+      if (!selectedCustomerCode) {
+        toaster.create({
+          title: "Error",
+          description: "Customer Code is missing.",
+          type: "error",
+        });
+        return;
       }
-      if (!ensureCustomerCode(newCustomerCode)) return;
-
-      // Save each contact one by one since API does not support batch
       for (const contact of data.contacts) {
         await addContact({
           ...contact,
-          customerId: newCustomerCode,
+          customerId: selectedCustomerCode,
           // @ts-expect-error: allow customerName for backend display
           customerName:
             customerOptions
-              .find((opt) => opt.value === newCustomerCode)
+              .find((opt) => opt.value === selectedCustomerCode)
               ?.label?.split(" (")[0] || "",
         });
       }
-
       toaster.create({
         title: `Contact(s) Added.`,
         description: `Successfully saved ${data.contacts.length} contact(s) for the customer.`,
@@ -215,7 +177,7 @@ const AddContact: React.FC = () => {
 
   return (
     <form
-      onSubmit={handleSubmit(handleFinalSave, onError)}
+      onSubmit={handleSubmit(onSubmit, onError)}
       style={{ maxWidth: 900, margin: "8px 0 8px 16px", padding: 16 }}
     >
       <HStack mb={6} alignItems="center" gap={1}>
@@ -227,8 +189,7 @@ const AddContact: React.FC = () => {
           onClick={handlePrevious}
         />
         <Heading size="lg" color="gray.700">
-          Add Contact{" "}
-          {customerData?.airlineName ? `for ${customerData.airlineName}` : ""}
+          Add Contact
         </Heading>
       </HStack>
 
