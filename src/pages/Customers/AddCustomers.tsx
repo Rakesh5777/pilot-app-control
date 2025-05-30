@@ -19,15 +19,19 @@ import {
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useForm, Controller } from "react-hook-form";
-import { addCustomer } from "@/axios/customerApi";
+// Removed addCustomer from here, will be handled in AddContact if needed or a combined save
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
+import { useCreationStore } from "@/store/creationStore"; // Import Zustand store
+import { addCustomer } from "@/axios/customerApi";
 
 export interface CommentItem {
   comment: string;
   time: string;
 }
 export interface FormData {
+  // This is CustomerFormData
+  id?: string; // Added for consistency if we ever fetch/edit
   airlineName: string;
   customerCode: string;
   iataCode: string;
@@ -65,7 +69,7 @@ const AddCustomerForm: React.FC = () => {
     handleSubmit,
     control,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     setValue,
     getValues,
     watch,
@@ -85,26 +89,34 @@ const AddCustomerForm: React.FC = () => {
   });
 
   const navigate = useNavigate();
+  const { setCustomerData, resetContactDataList } = useCreationStore(); // Get store actions
 
+  // Replace onSubmit with async version that saves customer and navigates with id
   const onSubmit = async (formData: FormData) => {
+    // Filter out empty comments before storing
     const filteredComments = (formData.comments || []).filter(
       (c) => c.comment && c.comment.trim() !== ""
     );
-    const submitData = { ...formData, comments: filteredComments };
+    const customerDataToStore = { ...formData, comments: filteredComments };
+
     try {
-      await addCustomer(submitData);
+      // Save customer to backend
+      const savedCustomer = await addCustomer(customerDataToStore);
+      setCustomerData(savedCustomer); // Store full customer data (with id/code)
+      resetContactDataList(); // Reset any previous contact list
       toaster.create({
-        title: "Customer Added.",
-        description: "The new customer data has been saved.",
+        title: "Customer Saved",
+        description: "Proceed to add contacts.",
         type: "success",
       });
-      reset();
-      navigate("/customers");
-    } catch (error) {
-      console.error("Error saving customer data:", error);
+      // Navigate to AddContact with customer id as param
+      navigate(
+        `/customers/add/contact?customerId=${savedCustomer.customerCode}`
+      );
+    } catch {
       toaster.create({
         title: "Error",
-        description: "Failed to save customer data.",
+        description: "Failed to save customer.",
         type: "error",
       });
     }
@@ -120,10 +132,12 @@ const AddCustomerForm: React.FC = () => {
 
   const handleCancel = () => {
     reset();
+    useCreationStore.getState().resetStore(); // Clear store on cancel
     toaster.create({
       description: "Form has been reset.",
       type: "info",
     });
+    navigate("/customers");
   };
 
   const comments = watch("comments");
@@ -154,7 +168,10 @@ const AddCustomerForm: React.FC = () => {
           padding={0}
           variant="plain"
           size="sm"
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            useCreationStore.getState().resetStore();
+            navigate(-1);
+          }}
           style={{
             display: "flex",
             alignItems: "center",
@@ -168,6 +185,7 @@ const AddCustomerForm: React.FC = () => {
         </Heading>
       </HStack>
       <VStack gap={6} align="stretch">
+        {/* Customer Form Fields (Grid) - No change to this section, keeping it as is from your file */}
         <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
           <GridItem>
             <Field.Root id="airlineName" invalid={!!errors.airlineName}>
@@ -278,7 +296,7 @@ const AddCustomerForm: React.FC = () => {
               <Field.ErrorText>{errors.fleetSize?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
-          <GridItem colSpan={2}>
+          <GridItem colSpan={{ base: 1, md: 2 }}>
             <Field.Root id="industry" invalid={!!errors.industry}>
               <Field.Label fontWeight="semibold">Industry</Field.Label>
               <Controller
@@ -313,7 +331,7 @@ const AddCustomerForm: React.FC = () => {
               <Field.ErrorText>{errors.industry?.message}</Field.ErrorText>
             </Field.Root>
           </GridItem>
-          <GridItem colSpan={2}>
+          <GridItem colSpan={{ base: 1, md: 2 }}>
             <Fieldset.Root invalid={!!errors.customerType}>
               <Fieldset.Legend>
                 Customer Type{" "}
@@ -350,7 +368,7 @@ const AddCustomerForm: React.FC = () => {
               </Fieldset.ErrorText>
             </Fieldset.Root>
           </GridItem>
-          <GridItem colSpan={2}>
+          <GridItem colSpan={{ base: 1, md: 2 }}>
             <Field.Root id="comments" invalid={!!errors.comments}>
               <Field.Label fontWeight="semibold">Comments</Field.Label>
               <Box maxH="180px" overflowY="auto" width="100%" pr={3}>
@@ -388,6 +406,11 @@ const AddCustomerForm: React.FC = () => {
                           size="sm"
                           colorScheme="red"
                           onClick={() => removeCommentField(idx)}
+                          isDisabled={
+                            comments.length <= 1 &&
+                            idx === 0 &&
+                            !comments[idx].comment
+                          } // Disable if it's the only empty comment
                         >
                           Remove
                         </Button>
@@ -423,11 +446,12 @@ const AddCustomerForm: React.FC = () => {
             minWidth="100px"
             onClick={handleCancel}
             type="button"
+            isDisabled={isSubmitting}
           >
             Cancel
           </Button>
-          <Button type="submit" minWidth="100px">
-            Next
+          <Button type="submit" minWidth="100px" isLoading={isSubmitting}>
+            Save & Next
           </Button>
         </HStack>
       </VStack>
