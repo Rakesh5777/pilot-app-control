@@ -162,7 +162,7 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
   };
 
   return (
-    <VStack align="stretch" gap={4} height="100%">
+    <VStack align="stretch" gap={4} height="100%" p={{ base: 3, md: 5 }}>
       <CustomerHeader search={search} onSearch={handleSearch} />
       <CustomerTable
         customers={paginated}

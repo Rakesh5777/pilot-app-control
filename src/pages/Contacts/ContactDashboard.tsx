@@ -43,7 +43,11 @@ const ContactHeader: React.FC<{
       <Text fontSize="2xl" fontWeight="bold">
         Contacts Dashboard
       </Text>
-      <HStack gap={2}>
+      <HStack
+        flexWrap="wrap"
+        justifyContent={{ base: "flex-start", md: "flex-end" }}
+        gap={2}
+      >
         <Select.Root
           width={{ base: "100%", sm: "200px" }}
           value={customerFilter ? [customerFilter] : []}
@@ -259,7 +263,7 @@ const ContactDashboard: React.FC<ContactDashboardProps> = ({
   };
 
   return (
-    <VStack align="stretch" gap={4} height="100%">
+    <VStack align="stretch" gap={4} height="100%" p={{ base: 3, md: 5 }}>
       <ContactHeader
         search={search}
         onSearch={handleSearch}

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
 import {
-  Heading,
   HStack,
   Box,
   Input,
@@ -46,16 +45,15 @@ const ChecklistHeader: React.FC<{
     <HStack
       justifyContent="space-between"
       alignItems="center"
-      mb={4}
-      py={2}
+      mb={2}
+      py={4}
       flexWrap="wrap"
-      gap={3}
     >
-      <Heading size="lg" color="fg.default" whiteSpace="nowrap">
-        Checklists
-      </Heading>
+      <Text fontSize="2xl" fontWeight="bold">
+        Contacts Dashboard
+      </Text>
       <HStack
-        gap={3}
+        gap={2}
         flexWrap="wrap"
         justifyContent={{ base: "flex-start", md: "flex-end" }}
       >
@@ -90,18 +88,18 @@ const ChecklistHeader: React.FC<{
           </Select.Positioner>
         </Select.Root>
 
-        <Input
-          placeholder="Search ..."
+        {/* <Input
+          placeholder="Search checklist..."
           value={search}
           onChange={onSearch}
           size="sm"
           width="200px"
           borderRadius="md"
-        />
+        /> */}
         <Button
           colorScheme="blue"
           onClick={onAdd}
-          size="md"
+          size="sm"
           whiteSpace="nowrap"
         >
           Add Checklist
@@ -352,15 +350,7 @@ const ChecklistDashboard: React.FC<ChecklistDashboardProps> = ({
   const isLoading = isLoadingInitialChecklists || isLoadingCustomers;
 
   return (
-    <VStack
-      align="stretch"
-      gap={4}
-      p={{ base: 3, md: 5 }}
-      flexGrow={1}
-      minHeight="0"
-      bg="bg.canvas"
-      borderRadius="lg"
-    >
+    <VStack align="stretch" gap={4} height="100%" p={{ base: 3, md: 5 }}>
       <ChecklistHeader
         search={searchTerm}
         onSearch={handleSearchChange}
