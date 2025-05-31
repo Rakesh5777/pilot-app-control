@@ -1,54 +1,87 @@
-# React + TypeScript + Vite
+# Project Title
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a React application that uses a JSON server for its mock backend.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Before you begin, ensure you have met the following requirements:
+* You have installed Node.js and npm (or yarn).
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+To get the project up and running, follow these steps:
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd <project-directory>
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+## Running the Application
+
+To run both the frontend development server and the mock JSON server concurrently, you can use two separate terminal windows:
+
+**Terminal 1: Start the React development server**
+```bash
+npm run dev
+# or
+yarn dev
 ```
+This will typically start the frontend application on `http://localhost:5173`.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**Terminal 2: Start the JSON mock server**
+```bash
+npm run serve:json
+# or
+yarn serve:json
+```
+This will start the JSON server, usually on `http://localhost:3001`. The data for the mock server is located in `src/mocks/db.json`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Now you can open your browser and navigate to the frontend application's URL to see it in action, interacting with the mock backend.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+## Available Scripts
+
+In the project directory, you can run the following scripts:
+
+* `npm run dev` or `yarn dev`: Runs the app in development mode.
+* `npm run build` or `yarn build`: Builds the app for production.
+* `npm run lint` or `yarn lint`: Lints the project files.
+* `npm run preview` or `yarn preview`: Serves the production build locally for preview.
+* `npm run serve:json` or `yarn serve:json`: Starts the JSON mock server.
+* `npm run theme:gen` or `yarn theme:gen`: Generates theme typings from `src/theme/index.ts`.
+* `npm run theme:watch` or `yarn theme:watch`: Watches `src/theme/index.ts` and regenerates theme typings on changes.
+
+## Project Structure
+
+```
+.
+├── public/                  # Static assets
+├── src/
+│   ├── assets/              # Images, icons, etc.
+│   ├── axios/               # Axios instances and API call definitions
+│   ├── components/          # Reusable UI components
+│   ├── mocks/               # JSON server mock data
+│   │   └── db.json          # Mock database
+│   ├── pages/               # Page-level components (routes)
+│   ├── store/               # Zustand stores for state management
+│   ├── theme/               # Chakra UI theme configuration
+│   ├── index.css            # Global CSS
+│   ├── main.tsx             # Main application entry point
+│   ├── routes.tsx           # Application routing setup
+│   └── vite-env.d.ts        # Vite environment type definitions
+├── eslint.config.js         # ESLint configuration
+├── index.html               # Main HTML file
+├── package.json             # Project metadata and dependencies
+├── README.md                # This file
+├── tsconfig.app.json        # TypeScript configuration for the application
+├── tsconfig.json            # Base TypeScript configuration
+├── tsconfig.node.json       # TypeScript configuration for Node.js scripts (like Vite config)
+└── vite.config.ts           # Vite configuration
 ```
