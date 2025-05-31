@@ -1,5 +1,13 @@
 import React, { useState, useMemo } from "react";
-import { Table, Button, Input, HStack, VStack, Box, Text } from "@chakra-ui/react";
+import {
+  Table,
+  Button,
+  Input,
+  HStack,
+  VStack,
+  Box,
+  Text,
+} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 
 export interface Customer {
@@ -26,7 +34,9 @@ const CustomerHeader: React.FC<{
   onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }> = React.memo(({ search, onSearch }) => (
   <HStack justifyContent="space-between" alignItems="center" mb={2} py={4}>
-    <Text fontSize="2xl" fontWeight="bold">Customers Dashboard</Text>
+    <Text fontSize="2xl" fontWeight="bold">
+      Customers Dashboard
+    </Text>
     <HStack gap={2}>
       <Input
         placeholder="Search customers..."
@@ -37,7 +47,9 @@ const CustomerHeader: React.FC<{
         borderRadius="md"
       />
       <Link to="add">
-        <Button colorScheme="teal" size="sm">Create Customer</Button>
+        <Button colorScheme="teal" size="sm">
+          Create Customer
+        </Button>
       </Link>
     </HStack>
   </HStack>
@@ -51,10 +63,17 @@ const CustomerTable: React.FC<{
   totalPages: number;
 }> = React.memo(({ customers, loading, page, setPage, totalPages }) => (
   <>
-    <Box flex={1} overflowX="auto" overflowY="auto" minH="300px" maxH="60vh" mt={2}>
+    <Box
+      borderWidth="1px"
+      borderRadius="lg"
+      borderColor="border.default"
+      overflowX="auto"
+      overflowY="auto"
+    >
       <Table.Root size="sm" variant="outline">
         <Table.Header>
           <Table.Row>
+            <Table.ColumnHeader>#</Table.ColumnHeader>
             <Table.ColumnHeader>Airline Name</Table.ColumnHeader>
             <Table.ColumnHeader>Customer Code</Table.ColumnHeader>
             <Table.ColumnHeader>IATA Code</Table.ColumnHeader>
@@ -75,8 +94,9 @@ const CustomerTable: React.FC<{
               <Table.Cell colSpan={8}>No customers found.</Table.Cell>
             </Table.Row>
           ) : (
-            customers.map((item) => (
+            customers.map((item, index) => (
               <Table.Row key={item.customerCode}>
+                <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
                 <Table.Cell>{item.airlineName}</Table.Cell>
                 <Table.Cell>{item.customerCode}</Table.Cell>
                 <Table.Cell>{item.iataCode}</Table.Cell>
@@ -93,13 +113,21 @@ const CustomerTable: React.FC<{
     </Box>
     {totalPages > 1 && (
       <HStack justifyContent="center" mt={2}>
-        <Button size="xs" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>
+        <Button
+          size="xs"
+          onClick={() => setPage(Math.max(1, page - 1))}
+          disabled={page === 1}
+        >
           Prev
         </Button>
         <Text fontSize="sm">
           Page {page} of {totalPages}
         </Text>
-        <Button size="xs" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
+        <Button
+          size="xs"
+          onClick={() => setPage(Math.min(totalPages, page + 1))}
+          disabled={page === totalPages}
+        >
           Next
         </Button>
       </HStack>
@@ -107,7 +135,10 @@ const CustomerTable: React.FC<{
   </>
 ));
 
-const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customers, loading }) => {
+const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
+  customers,
+  loading,
+}) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 

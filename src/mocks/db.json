@@ -1,23 +1,6 @@
 {
   "customers": [
     {
-      "id": "12e9",
-      "airlineName": "Indigo",
-      "customerCode": "Indigo",
-      "iataCode": "indigo",
-      "businessRegistrationNumber": "123",
-      "countryRegion": "india",
-      "fleetSize": "1",
-      "industry": "Airline",
-      "customerType": "Lead",
-      "comments": [
-        {
-          "comment": "super",
-          "time": "2025-05-30T22:58:26.035Z"
-        }
-      ]
-    },
-    {
       "id": "6ada",
       "airlineName": "rakesh",
       "customerCode": "rakesh",
@@ -40,24 +23,230 @@
       "industry": "Airline",
       "customerType": "Lead",
       "comments": []
+    },
+    {
+      "id": "2176",
+      "airlineName": "Qatar Airways",
+      "customerCode": "QTA",
+      "iataCode": "qta",
+      "businessRegistrationNumber": "",
+      "countryRegion": "",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": [
+        {
+          "comment": "something something",
+          "time": "2025-05-31T00:27:46.934Z"
+        }
+      ]
+    },
+    {
+      "id": "9627",
+      "airlineName": "Vistara",
+      "customerCode": "Vistara123",
+      "iataCode": "VIS",
+      "businessRegistrationNumber": "",
+      "countryRegion": "",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": [
+        {
+          "comment": "air lines",
+          "time": "2025-05-31T00:32:34.120Z"
+        }
+      ]
+    },
+    {
+      "id": "1f75",
+      "airlineName": "Air India",
+      "customerCode": "AirInd",
+      "iataCode": "AIRIND",
+      "businessRegistrationNumber": "",
+      "countryRegion": "",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": [
+        {
+          "comment": "nice airlines",
+          "time": "2025-05-31T00:34:57.443Z"
+        }
+      ]
+    },
+    {
+      "id": "f490",
+      "airlineName": "agewfasdf",
+      "customerCode": "agweafdsfds",
+      "iataCode": "",
+      "businessRegistrationNumber": "",
+      "countryRegion": "",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": []
+    },
+    {
+      "id": "c38e",
+      "airlineName": "ag323rasfd",
+      "customerCode": "adsf32fawef",
+      "iataCode": "g24asdfasf",
+      "businessRegistrationNumber": "t32afsdf",
+      "countryRegion": "",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": []
+    },
+    {
+      "id": "4f14",
+      "airlineName": "Indigo",
+      "customerCode": "Indigo",
+      "iataCode": "IND",
+      "businessRegistrationNumber": "",
+      "countryRegion": "",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": []
+    },
+    {
+      "id": "7d4a",
+      "airlineName": "Air India",
+      "customerCode": "air_india",
+      "iataCode": "airind",
+      "businessRegistrationNumber": "",
+      "countryRegion": "",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": [
+        {
+          "comment": "air india",
+          "time": "2025-05-31T00:47:17.909Z"
+        }
+      ]
     }
   ],
   "contacts": [
     {
-      "id": "341b",
+      "id": "9dd4",
+      "firstName": "Rakesh ",
+      "lastName": "Qatar",
+      "emailAddress": "rakeshreddy.k5777@gmail.com",
+      "isPrimary": true,
+      "phoneNumbers": [
+        {
+          "type": "Work",
+          "number": "12312421"
+        }
+      ],
+      "customerId": "QTA",
+      "customerName": "Qatar Airways"
+    },
+    {
+      "id": "5ceb",
       "firstName": "Rakesh",
-      "lastName": "Reddy",
+      "lastName": "Indigo",
       "emailAddress": "rakeshreddy.k5777@gmail.com",
       "isPrimary": false,
       "phoneNumbers": [
         {
           "type": "Work",
-          "number": "123"
+          "number": "9182494554"
         }
       ],
       "customerId": "Indigo",
       "customerName": "Indigo"
+    },
+    {
+      "id": "a16d",
+      "firstName": "Rakesh",
+      "lastName": "Air India",
+      "emailAddress": "rakesh@airindia.com",
+      "isPrimary": true,
+      "phoneNumbers": [
+        {
+          "type": "Work",
+          "number": "9182494554"
+        }
+      ],
+      "customerId": "air_india",
+      "customerName": "Air India"
+    },
+    {
+      "id": "ce98",
+      "firstName": "sreenu",
+      "lastName": "air india",
+      "emailAddress": "sreenu@airindia.com",
+      "isPrimary": false,
+      "phoneNumbers": [
+        {
+          "type": "Work",
+          "number": "9876543221"
+        }
+      ],
+      "customerId": "air_india",
+      "customerName": "Air India"
     }
   ],
-  "checklists": []
+  "checklists": [
+    {
+      "id": "a3f9",
+      "customerId": "QTA",
+      "customerName": "Qatar Airways",
+      "q1": true,
+      "q2": false,
+      "q3": false,
+      "q4": false,
+      "q5": false,
+      "q6": true,
+      "q7": true,
+      "q8": false,
+      "q9": false
+    },
+    {
+      "id": "4d72",
+      "customerId": "Indigo",
+      "customerName": "Indigo",
+      "q1": false,
+      "q2": true,
+      "q3": true,
+      "q4": true,
+      "q5": false,
+      "q6": false,
+      "q7": false,
+      "q8": false,
+      "q9": true
+    },
+    {
+      "id": "7498",
+      "customerId": "Indigo",
+      "customerName": "Indigo",
+      "q1": true,
+      "q2": false,
+      "q3": true,
+      "q4": true,
+      "q5": true,
+      "q6": false,
+      "q7": false,
+      "q8": false,
+      "q9": false
+    },
+    {
+      "id": "d8d8",
+      "customerId": "air_india",
+      "customerName": "Air India",
+      "q1": true,
+      "q2": true,
+      "q3": true,
+      "q4": true,
+      "q5": false,
+      "q6": false,
+      "q7": false,
+      "q8": false,
+      "q9": true
+    }
+  ]
 }

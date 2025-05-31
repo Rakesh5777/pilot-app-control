@@ -1,10 +1,19 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Table, Button, Input, HStack, VStack, Box, Text } from "@chakra-ui/react";
+import {
+  Table,
+  Button,
+  Input,
+  HStack,
+  VStack,
+  Box,
+  Text,
+  Select, // Added Select
+  createListCollection, // Added createListCollection
+} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import type { Contact } from "./AddContact";
 import type { Customer } from "../Customers/CustomerDashboard";
 import { getCustomers } from "@/axios/customerApi";
-
 
 interface ContactDashboardProps {
   contacts: Contact[];
@@ -18,33 +27,53 @@ const ContactHeader: React.FC<{
   search: string;
   onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   customerFilter: string;
-  onFilter: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onFilter: (value: string | null) => void; // Updated onFilter signature
   customerOptions: { value: string; label: string }[];
+  isLoadingCustomers: boolean; // Added isLoadingCustomers
 }> = React.memo(
-  ({ search, onSearch, customerFilter, onFilter, customerOptions }) => (
+  ({
+    search,
+    onSearch,
+    customerFilter,
+    onFilter,
+    customerOptions,
+    isLoadingCustomers, // Added isLoadingCustomers
+  }) => (
     <HStack justifyContent="space-between" alignItems="center" mb={2} py={4}>
       <Text fontSize="2xl" fontWeight="bold">
         Contacts Dashboard
       </Text>
       <HStack gap={2}>
-        <select
-          style={{
-            width: 200,
-            height: 32,
-            borderRadius: 6,
-            border: "1px solid #CBD5E0",
-            padding: "0 8px",
-          }}
-          value={customerFilter}
-          onChange={onFilter}
+        <Select.Root
+          width={{ base: "100%", sm: "200px" }}
+          value={customerFilter ? [customerFilter] : []}
+          onValueChange={(details) => onFilter(details.value[0] || null)}
+          collection={createListCollection({
+            items: [{ value: "", label: "All Customers" }, ...customerOptions],
+            itemToString: (item) => item.label,
+            itemToValue: (item) => item.value,
+          })}
+          disabled={isLoadingCustomers || customerOptions.length === 0}
         >
-          <option value="">Filter by Customer</option>
-          {customerOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          <Select.Trigger borderRadius="md">
+            <Select.ValueText placeholder="Filter by Customer" />
+            <Select.Indicator />
+          </Select.Trigger>
+          <Select.Positioner>
+            <Select.Content>
+              <Select.Item item={{ value: "", label: "All Customers" }}>
+                <Select.ItemText>All Customers</Select.ItemText>
+                <Select.ItemIndicator />
+              </Select.Item>
+              {customerOptions.map((opt) => (
+                <Select.Item key={opt.value} item={opt}>
+                  <Select.ItemText>{opt.label}</Select.ItemText>
+                  <Select.ItemIndicator />
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Positioner>
+        </Select.Root>
         <Input
           placeholder="Search contacts..."
           value={search}
@@ -73,16 +102,16 @@ const ContactTable: React.FC<{
 }> = React.memo(({ contacts, loading, page, setPage, totalPages }) => (
   <>
     <Box
-      flex={1}
+      borderWidth="1px"
+      borderRadius="lg"
+      borderColor="border.default"
       overflowX="auto"
       overflowY="auto"
-      minH="300px"
-      maxH="60vh"
-      mt={2}
     >
       <Table.Root size="sm" variant="outline">
         <Table.Header>
           <Table.Row>
+            <Table.ColumnHeader>#</Table.ColumnHeader>
             <Table.ColumnHeader>Name</Table.ColumnHeader>
             <Table.ColumnHeader>Email</Table.ColumnHeader>
             <Table.ColumnHeader>Customer</Table.ColumnHeader>
@@ -101,8 +130,9 @@ const ContactTable: React.FC<{
               <Table.Cell colSpan={6}>No contacts found.</Table.Cell>
             </Table.Row>
           ) : (
-            contacts.map((item) => (
+            contacts.map((item, index) => (
               <Table.Row key={item.id}>
+                <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
                 <Table.Cell>
                   {item.firstName} {item.lastName}
                 </Table.Cell>
@@ -159,21 +189,33 @@ const ContactDashboard: React.FC<ContactDashboardProps> = ({
   const [customerOptions, setCustomerOptions] = useState<
     { value: string; label: string }[]
   >([]);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(true); // Added isLoadingCustomers
 
   useEffect(() => {
-    getCustomers().then((customerList: Customer[]) => {
-      setCustomerOptions(
-        customerList.map((c) => ({
-          value: c.customerCode,
-          label: `${c.airlineName} (${c.customerCode})`,
-        }))
-      );
-      const map: Record<string, string> = {};
-      customerList.forEach((c) => {
-        if (c.customerCode) map[c.customerCode] = c.airlineName;
-      });
-      setCustomersMap(map);
-    });
+    setIsLoadingCustomers(true); // Set loading true at the start
+    getCustomers()
+      .then((customerList: Customer[]) => {
+        const validCustomers = Array.isArray(customerList) ? customerList : [];
+        setCustomerOptions(
+          validCustomers.map((c) => ({
+            value: c.customerCode,
+            label: `${c.airlineName || "Unnamed Customer"} (${c.customerCode})`,
+          }))
+        );
+        const map: Record<string, string> = {};
+        validCustomers.forEach((c) => {
+          if (c.customerCode)
+            map[c.customerCode] = c.airlineName || "Unnamed Customer";
+        });
+        setCustomersMap(map);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch customers for filter:", error);
+        // Consider adding a toaster notification here for the user
+        setCustomerOptions([]);
+        setCustomersMap({});
+      })
+      .finally(() => setIsLoadingCustomers(false)); // Set loading false at the end
   }, []);
 
   // Add customerName to each contact for display
@@ -210,8 +252,9 @@ const ContactDashboard: React.FC<ContactDashboardProps> = ({
     setPage(1);
   };
 
-  const handleFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCustomerFilter(e.target.value);
+  const handleFilter = (value: string | null) => {
+    // Updated handleFilter signature
+    setCustomerFilter(value || "");
     setPage(1);
   };
 
@@ -223,6 +266,7 @@ const ContactDashboard: React.FC<ContactDashboardProps> = ({
         customerFilter={customerFilter}
         onFilter={handleFilter}
         customerOptions={customerOptions}
+        isLoadingCustomers={isLoadingCustomers} // Pass isLoadingCustomers
       />
       <Box display={{ base: "block", md: "flex" }}>
         <Box flex={1} minW={0}>

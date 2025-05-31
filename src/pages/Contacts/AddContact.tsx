@@ -174,9 +174,9 @@ const AddContact: React.FC = () => {
 
   const handlePrevious = () => {
     if (isCustomerCreationFlow) {
-      navigate("/customers/add");
+      navigate("/customers/add"); // Navigate to Add Customer page
     } else {
-      navigate("/contacts");
+      navigate("/contacts"); // Navigate to Contacts dashboard
     }
   };
 
@@ -550,15 +550,22 @@ const AddContact: React.FC = () => {
         >
           Add Contact
         </Button>
-        <HStack justifyContent="flex-end" mt={8}>
+        <HStack justifyContent="space-between" mt={8}>
           <Button
-            colorScheme="blue"
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={isSubmitting}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
             minWidth="150px"
             type="submit"
             disabled={!isValid || isSubmitting}
             loading={isSubmitting}
           >
-            Save Contacts
+            {isCustomerCreationFlow ? "Save & Next" : "Save Contact"}
           </Button>
         </HStack>
       </VStack>
