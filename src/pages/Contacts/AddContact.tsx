@@ -149,8 +149,7 @@ const AddContact: React.FC = () => {
       });
       // resetStore(); // Reset store only at the end of the entire flow
       if (isCustomerCreationFlow) {
-        // Navigate to checklist page if in customer creation flow
-        navigate("/customers/add/checklist");
+        navigate("/customers/add/afrdata");
       } else {
         navigate("/contacts");
       }
@@ -551,22 +550,38 @@ const AddContact: React.FC = () => {
           Add Contact
         </Button>
         <HStack justifyContent="space-between" mt={8}>
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={isSubmitting}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            minWidth="150px"
-            type="submit"
-            disabled={!isValid || isSubmitting}
-            loading={isSubmitting}
-          >
-            {isCustomerCreationFlow ? "Save & Next" : "Save Contact"}
-          </Button>
+          {isCustomerCreationFlow ? (
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={isSubmitting}
+            >
+              Previous
+            </Button>
+          ) : (
+            <span />
+          )}
+          <HStack gap={4}>
+            {isCustomerCreationFlow && (
+              <Button
+                variant="outline"
+                minWidth="100px"
+                onClick={() => navigate("/customers/add/afrdata")}
+                disabled={isSubmitting}
+              >
+                Skip
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              minWidth="150px"
+              type="submit"
+              disabled={!isValid || isSubmitting}
+              loading={isSubmitting}
+            >
+              {isCustomerCreationFlow ? "Save & Next" : "Save Contact"}
+            </Button>
+          </HStack>
         </HStack>
       </VStack>
     </form>

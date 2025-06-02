@@ -43,7 +43,7 @@ export interface Checklist extends ChecklistFormData {
 const AddChecklist: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { customerData, resetStore, setChecklistData } = useCreationStore(); // Added setChecklistData
+  const { customerData, resetStore, setChecklistData } = useCreationStore();
   const [selectedCustomerCode, setSelectedCustomerCode] = useState<
     string | undefined
   >(customerData?.customerCode);
@@ -240,91 +240,59 @@ const AddChecklist: React.FC = () => {
       </HStack>
 
       <VStack gap={6} align="stretch">
-        {!isCustomerCreationFlow ? (
-          <Field.Root
-            id="customerSelect"
-            mb={4}
-            invalid={!selectedCustomerCode && !!errors.customerId} // Check against form errors
+        <Field.Root
+          id="customerSelect"
+          mb={4}
+          invalid={!selectedCustomerCode && customerOptions.length > 0}
+        >
+          <Field.Label fontWeight="semibold">Select Customer</Field.Label>
+          <Select.Root
+            value={selectedCustomerCode ? [selectedCustomerCode] : []}
+            onValueChange={(details: { value: string[] }) => {
+              const value = details.value[0];
+              setSelectedCustomerCode(value);
+              setValue("customerId", value);
+              const selectedCust = customerOptions.find(
+                (opt) => opt.value === value
+              );
+              if (selectedCust) {
+                setValue("customerName", selectedCust.label.split(" (")[0]);
+              } else {
+                setValue("customerName", "");
+              }
+            }}
+            collection={createListCollection({
+              items: customerOptions,
+              itemToString: (item: { label: string }) => item.label,
+              itemToValue: (item: { value: string }) => item.value,
+            })}
+            disabled={customerOptions.length === 0}
+            width="100%"
           >
-            <Field.Label fontWeight="semibold">
-              Select Customer{" "}
-              <Text as="span" color="red.500">
-                *
-              </Text>
-            </Field.Label>
-            <Controller
-              name="customerId"
-              control={control}
-              rules={{ required: "Customer selection is required." }}
-              render={({ field }) => (
-                <Select.Root
-                  value={field.value ? [field.value] : []}
-                  onValueChange={(details) => {
-                    const value = details.value[0];
-                    field.onChange(value);
-                    setSelectedCustomerCode(value);
-                    const selectedCust = customerOptions.find(
-                      (opt) => opt.value === value
-                    );
-                    if (selectedCust) {
-                      setValue(
-                        "customerName",
-                        selectedCust.label.split(" (")[0]
-                      );
-                    } else {
-                      setValue("customerName", "");
-                    }
-                  }}
-                  collection={createListCollection({
-                    items: customerOptions,
-                    itemToString: (item) => item.label,
-                    itemToValue: (item) => item.value,
-                  })}
-                  disabled={customerOptions.length === 0}
-                  width="100%"
-                >
-                  <Select.Trigger>
-                    <Select.ValueText placeholder="Select an existing customer" />
-                    <Select.Indicator />
-                  </Select.Trigger>
-                  <Select.Positioner>
-                    <Select.Content>
-                      {customerOptions.map((cust) => (
-                        <Select.Item key={cust.value} item={cust}>
-                          <Select.ItemText>{cust.label}</Select.ItemText>
-                          <Select.ItemIndicator />
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Positioner>
-                </Select.Root>
-              )}
-            />
-            {errors.customerId && (
-              <Field.ErrorText>{errors.customerId.message}</Field.ErrorText>
-            )}
-            {customerOptions.length === 0 && !isCustomerCreationFlow && (
-              <Text fontSize="sm" color="fg.muted" mt={1}>
-                No customers found. Please create one first.
-              </Text>
-            )}
-          </Field.Root>
-        ) : (
-          customerData && (
-            <Box
-              mb={4}
-              p={3}
-              borderWidth="1px"
-              borderRadius="md"
-              bg="bg.subtle"
-            >
-              <Text fontWeight="semibold">
-                Customer: {customerData.airlineName} (
-                {customerData.customerCode})
-              </Text>
-            </Box>
-          )
-        )}
+            <Select.Trigger>
+              <Select.ValueText placeholder="Select an existing customer" />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Positioner>
+              <Select.Content>
+                {customerOptions.map((cust) => (
+                  <Select.Item key={cust.value} item={cust}>
+                    <Select.ItemText>{cust.label}</Select.ItemText>
+                    <Select.ItemIndicator />
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Positioner>
+          </Select.Root>
+          {!selectedCustomerCode && customerOptions.length > 0 && (
+            <Field.ErrorText>Please select a customer.</Field.ErrorText>
+          )}
+          {customerOptions.length === 0 && (
+            <Text fontSize="sm" color="fg.muted" mt={1}>
+              No customers found. Please create one first.
+            </Text>
+          )}
+        </Field.Root>
 
         <Fieldset.Root>
           <Fieldset.Legend fontWeight="semibold" mb={3} fontSize="md">

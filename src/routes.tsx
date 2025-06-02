@@ -5,6 +5,8 @@ import AddContact from "./pages/Contacts/AddContact";
 import Contacts from "./pages/Contacts/Contacts";
 import AddChecklist from "./pages/Checklist/AddChecklist";
 import ChecklistPage from "./pages/Checklist/Checklist";
+import AddAFRData from "./pages/AFRData/AddAFRData";
+import AFRData from "./pages/AFRData/AFRData";
 
 export const routes = [
   {
@@ -17,10 +19,9 @@ export const routes = [
         children: [
           { index: true, element: <Customers /> },
           { path: "add", element: <AddCustomerForm /> },
-          // Route for adding contact after customer
           { path: "add/contact", element: <AddContact /> },
-          // Route for adding checklist after contact in customer creation flow
           { path: "add/checklist", element: <AddChecklist /> },
+          { path: "add/afrdata", element: <AddAFRData /> },
         ],
       },
       {
@@ -35,6 +36,13 @@ export const routes = [
         children: [
           { index: true, element: <ChecklistPage /> },
           { path: "add", element: <AddChecklist /> },
+        ],
+      },
+      {
+        path: "afrdata", // New Route for AFR Data
+        children: [
+          { index: true, element: <AFRData /> },
+          { path: "add", element: <AddAFRData /> },
         ],
       },
     ],

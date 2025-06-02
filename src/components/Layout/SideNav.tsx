@@ -1,5 +1,5 @@
 import React, { type JSX } from "react";
-import { FaUsers, FaAddressCard, FaTasks } from "react-icons/fa"; // Added FaTasks
+import { FaUsers, FaAddressCard, FaTasks, FaDatabase } from "react-icons/fa"; // Added FaTasks and FaDatabase
 import { useLocation, useNavigate } from "react-router-dom"; // Import useLocation and useNavigate
 
 interface NavItem {
@@ -20,12 +20,16 @@ const navItems: NavItem[] = [
     icon: <FaAddressCard size={16} />, // Added Contacts item
   },
   {
+    name: "AFR Data",
+    path: "/afrdata",
+    icon: <FaDatabase size={16} />,
+  },
+  {
     name: "Checklist",
     path: "/checklist",
     icon: <FaTasks size={16} />,
   },
   // Add other items from the image if needed, for example:
-  // { name: "AFR Data", path: "/afr-data", icon: <FaDatabase size={16} /> },
   // { name: "Users", path: "/users", icon: <FaUsersCog size={16} /> },
   // { name: "Dashboard", path: "/dashboard", icon: <FaTachometerAlt size={16} /> },
   // { name: "Trials", path: "/trials", icon: <FaFlask size={16} /> },
