@@ -7,8 +7,13 @@ import AddChecklist from "./pages/Checklist/AddChecklist";
 import ChecklistPage from "./pages/Checklist/Checklist";
 import AddAFRData from "./pages/AFRData/AddAFRData";
 import AFRData from "./pages/AFRData/AFRData";
+import { Navigate } from "react-router-dom";
 
 export const routes = [
+  {
+    path: "/",
+    element: <Navigate to="/customers" replace />,
+  },
   {
     path: "/",
     element: <AppLayout />,
