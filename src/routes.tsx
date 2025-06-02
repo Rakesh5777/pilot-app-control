@@ -12,12 +12,9 @@ import { Navigate } from "react-router-dom";
 export const routes = [
   {
     path: "/",
-    element: <Navigate to="/customers" replace />,
-  },
-  {
-    path: "/",
     element: <AppLayout />,
     children: [
+      { index: true, element: <Navigate to="/customers" replace /> },
       { index: true, element: <Customers /> },
       {
         path: "customers",
