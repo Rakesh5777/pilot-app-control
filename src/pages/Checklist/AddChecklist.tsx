@@ -11,7 +11,6 @@ import {
   VStack,
   createListCollection,
   IconButton,
-  Box,
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useForm, Controller } from "react-hook-form";
@@ -82,7 +81,7 @@ const AddChecklist: React.FC = () => {
   const {
     handleSubmit,
     control,
-    formState: { errors, isSubmitting, isValid },
+    formState: { isSubmitting, isValid },
     setValue, // Keep setValue if needed for dynamic changes
     reset, // Added reset for form clearing
   } = useForm<ChecklistFormData>({

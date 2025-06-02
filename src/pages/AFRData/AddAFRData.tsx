@@ -20,7 +20,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { addAFRData } from "@/axios/afrDataApi";
 import { getCustomers } from "@/axios/customerApi";
-
+import { useCreationStore } from "@/store/creationStore";
 
 export interface AFRDataType {
   id?: string;
@@ -30,6 +30,7 @@ export interface AFRDataType {
   flightsWithCaptainCode: string;
   percentageWithCaptainCode: string;
   pilotAppSuitable: boolean;
+  customerId?: string;
 }
 
 export interface AFRData extends AFRDataType {
@@ -39,24 +40,37 @@ export interface AFRData extends AFRDataType {
 const AddAFRData: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isCustomerCreationFlow = location.pathname.includes("/customers/add/afrdata");
-  const [customerOptions, setCustomerOptions] = useState<{ value: string; label: string }[]>([]);
+  const { customerData } = useCreationStore();
+  const isCustomerCreationFlow = location.pathname.includes(
+    "/customers/add/afrdata"
+  );
+  const [customerOptions, setCustomerOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
 
   useEffect(() => {
-    getCustomers().then((customers: { customerCode: string; airlineName: string }[]) => {
-      setCustomerOptions(
-        customers.map((c) => ({
-          value: c.customerCode,
-          label: `${c.airlineName} (${c.customerCode})`,
-        }))
-      );
-      // If in customer creation flow and customerData exists, pre-select it
-      if (isCustomerCreationFlow && customers.length > 0) {
-        setSelectedCustomerId(customers[0].customerCode);
+    getCustomers().then(
+      (customers: { customerCode: string; airlineName: string }[]) => {
+        setCustomerOptions(
+          customers.map((c) => ({
+            value: c.customerCode,
+            label: `${c.airlineName} (${c.customerCode})`,
+          }))
+        );
+        if (isCustomerCreationFlow && customerData?.customerCode) {
+          const exists = customers.some(
+            (c) => c.customerCode === customerData.customerCode
+          );
+          if (exists) {
+            setSelectedCustomerId(customerData.customerCode);
+            return;
+          }
+        }
+        setSelectedCustomerId("");
       }
-    });
-  }, [isCustomerCreationFlow]);
+    );
+  }, [isCustomerCreationFlow, customerData]);
 
   const {
     handleSubmit,
@@ -108,7 +122,7 @@ const AddAFRData: React.FC = () => {
 
   const handlePrevious = () => {
     if (isCustomerCreationFlow) {
-      navigate("/customers/add/contacts");
+      navigate("/customers/add/contact");
     } else {
       navigate("/afrdata");
     }
@@ -117,7 +131,7 @@ const AddAFRData: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit, onError)}
-      style={{ maxWidth: 1200, margin: "8px auto", padding: 16 }}
+      style={{ maxWidth: 900, margin: "8px 0 8px 16px", padding: 16 }}
     >
       <HStack mb={6} alignItems="center" gap={1}>
         <IconButton
@@ -139,12 +153,12 @@ const AddAFRData: React.FC = () => {
           mb={4}
           invalid={!selectedCustomerId && customerOptions.length > 0}
         >
-          <Field.Label fontWeight="semibold">
-            Select Customer
-          </Field.Label>
+          <Field.Label fontWeight="semibold">Select Customer</Field.Label>
           <Select.Root
             value={selectedCustomerId ? [selectedCustomerId] : []}
-            onValueChange={(details: { value: string[] }) => setSelectedCustomerId(details.value[0])}
+            onValueChange={(details: { value: string[] }) =>
+              setSelectedCustomerId(details.value[0])
+            }
             collection={createListCollection({
               items: customerOptions,
               itemToString: (item: { label: string }) => item.label,
@@ -178,38 +192,37 @@ const AddAFRData: React.FC = () => {
         </Field.Root>
 
         <Box borderWidth={1} borderRadius="md" p={4} mb={2}>
-          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={10}>
+          <Grid
+            templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
+            gap={10}
+          >
             <GridItem>
               <Field.Root id="flightsTotal" invalid={!!errors.flightsTotal}>
-                <Field.Label fontWeight="semibold">
-                  Flights Total
-                </Field.Label>
+                <Field.Label fontWeight="semibold">Flights Total</Field.Label>
                 <Controller
                   name="flightsTotal"
                   control={control}
-                  render={({ field }) => (
-                    <Input {...field} borderRadius="md" />
-                  )}
+                  render={({ field }) => <Input {...field} borderRadius="md" />}
                 />
                 {errors.flightsTotal && (
-                  <Field.ErrorText>{errors.flightsTotal.message}</Field.ErrorText>
+                  <Field.ErrorText>
+                    {errors.flightsTotal.message}
+                  </Field.ErrorText>
                 )}
               </Field.Root>
             </GridItem>
             <GridItem>
               <Field.Root id="organization" invalid={!!errors.organization}>
-                <Field.Label fontWeight="semibold">
-                  Organization
-                </Field.Label>
+                <Field.Label fontWeight="semibold">Organization</Field.Label>
                 <Controller
                   name="organization"
                   control={control}
-                  render={({ field }) => (
-                    <Input {...field} borderRadius="md" />
-                  )}
+                  render={({ field }) => <Input {...field} borderRadius="md" />}
                 />
                 {errors.organization && (
-                  <Field.ErrorText>{errors.organization.message}</Field.ErrorText>
+                  <Field.ErrorText>
+                    {errors.organization.message}
+                  </Field.ErrorText>
                 )}
               </Field.Root>
             </GridItem>
@@ -222,52 +235,61 @@ const AddAFRData: React.FC = () => {
                 <Controller
                   name="flightsWithAFR"
                   control={control}
-                  render={({ field }) => (
-                    <Input {...field} borderRadius="md" />
-                  )}
+                  render={({ field }) => <Input {...field} borderRadius="md" />}
                 />
                 {errors.flightsWithAFR && (
-                  <Field.ErrorText>{errors.flightsWithAFR.message}</Field.ErrorText>
+                  <Field.ErrorText>
+                    {errors.flightsWithAFR.message}
+                  </Field.ErrorText>
                 )}
               </Field.Root>
             </GridItem>
             <GridItem>
-              <Field.Root id="flightsWithCaptainCode" invalid={!!errors.flightsWithCaptainCode}>
+              <Field.Root
+                id="flightsWithCaptainCode"
+                invalid={!!errors.flightsWithCaptainCode}
+              >
                 <Field.Label fontWeight="semibold">
                   Flights With Captain Code
                 </Field.Label>
                 <Controller
                   name="flightsWithCaptainCode"
                   control={control}
-                  render={({ field }) => (
-                    <Input {...field} borderRadius="md" />
-                  )}
+                  render={({ field }) => <Input {...field} borderRadius="md" />}
                 />
                 {errors.flightsWithCaptainCode && (
-                  <Field.ErrorText>{errors.flightsWithCaptainCode.message}</Field.ErrorText>
+                  <Field.ErrorText>
+                    {errors.flightsWithCaptainCode.message}
+                  </Field.ErrorText>
                 )}
               </Field.Root>
             </GridItem>
 
             <GridItem>
-              <Field.Root id="percentageWithCaptainCode" invalid={!!errors.percentageWithCaptainCode}>
+              <Field.Root
+                id="percentageWithCaptainCode"
+                invalid={!!errors.percentageWithCaptainCode}
+              >
                 <Field.Label fontWeight="semibold">
                   Percentage With Captain Code
                 </Field.Label>
                 <Controller
                   name="percentageWithCaptainCode"
                   control={control}
-                  render={({ field }) => (
-                    <Input {...field} borderRadius="md" />
-                  )}
+                  render={({ field }) => <Input {...field} borderRadius="md" />}
                 />
                 {errors.percentageWithCaptainCode && (
-                  <Field.ErrorText>{errors.percentageWithCaptainCode.message}</Field.ErrorText>
+                  <Field.ErrorText>
+                    {errors.percentageWithCaptainCode.message}
+                  </Field.ErrorText>
                 )}
               </Field.Root>
             </GridItem>
             <GridItem>
-              <Field.Root id="pilotAppSuitable" invalid={!!errors.pilotAppSuitable}>
+              <Field.Root
+                id="pilotAppSuitable"
+                invalid={!!errors.pilotAppSuitable}
+              >
                 <Field.Label fontWeight="semibold">
                   Pilot App Suitable
                 </Field.Label>
@@ -283,14 +305,23 @@ const AddAFRData: React.FC = () => {
                       <RadioGroup.Root
                         name={field.name}
                         value={field.value === true ? "true" : "false"}
-                        onValueChange={({ value }) => field.onChange(value === "true")}
+                        onValueChange={({ value }) =>
+                          field.onChange(value === "true")
+                        }
                       >
                         <HStack gap={4} wrap="wrap" mt={2}>
                           {pilotAppOptions.map((item) => (
-                            <RadioGroup.Item key={item.value} value={item.value}>
-                              <RadioGroup.ItemHiddenInput onBlur={field.onBlur} />
+                            <RadioGroup.Item
+                              key={item.value}
+                              value={item.value}
+                            >
+                              <RadioGroup.ItemHiddenInput
+                                onBlur={field.onBlur}
+                              />
                               <RadioGroup.ItemIndicator />
-                              <RadioGroup.ItemText>{item.label}</RadioGroup.ItemText>
+                              <RadioGroup.ItemText>
+                                {item.label}
+                              </RadioGroup.ItemText>
                             </RadioGroup.Item>
                           ))}
                         </HStack>
@@ -308,7 +339,9 @@ const AddAFRData: React.FC = () => {
             <Button variant="outline" onClick={handlePrevious} minW={32}>
               Previous
             </Button>
-          ) : <span />}
+          ) : (
+            <span />
+          )}
           <HStack gap={4}>
             {isCustomerCreationFlow && (
               <Button
