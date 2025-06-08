@@ -10,7 +10,7 @@ import {
   Select, // Added Select
   createListCollection, // Added createListCollection
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { Contact } from "./AddContact";
 import type { Customer } from "../Customers/CustomerDashboard";
 import { getCustomers } from "@/axios/customerApi";
@@ -104,85 +104,94 @@ const ContactTable: React.FC<{
   page: number;
   setPage: (page: number) => void;
   totalPages: number;
-}> = React.memo(({ contacts, loading, page, setPage, totalPages }) => (
-  <>
-    <Box
-      borderWidth="1px"
-      borderRadius="lg"
-      borderColor="border.default"
-      overflowX="auto"
-      overflowY="auto"
-    >
-      <Table.Root size="sm" variant="outline">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeader>#</Table.ColumnHeader>
-            <Table.ColumnHeader>Name</Table.ColumnHeader>
-            <Table.ColumnHeader>Email</Table.ColumnHeader>
-            <Table.ColumnHeader>Customer</Table.ColumnHeader>
-            <Table.ColumnHeader>Primary</Table.ColumnHeader>
-            <Table.ColumnHeader>Phone (Work)</Table.ColumnHeader>
-            <Table.ColumnHeader>Phone (Mobile)</Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {loading ? (
+}> = React.memo(({ contacts, loading, page, setPage, totalPages }) => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <Box
+        borderWidth="1px"
+        borderRadius="lg"
+        borderColor="border.default"
+        overflowX="auto"
+        overflowY="auto"
+      >
+        <Table.Root size="sm" variant="outline">
+          <Table.Header>
             <Table.Row>
-              <Table.Cell colSpan={6}>Loading...</Table.Cell>
+              <Table.ColumnHeader>#</Table.ColumnHeader>
+              <Table.ColumnHeader>Name</Table.ColumnHeader>
+              <Table.ColumnHeader>Email</Table.ColumnHeader>
+              <Table.ColumnHeader>Customer</Table.ColumnHeader>
+              <Table.ColumnHeader>Primary</Table.ColumnHeader>
+              <Table.ColumnHeader>Phone (Work)</Table.ColumnHeader>
+              <Table.ColumnHeader>Phone (Mobile)</Table.ColumnHeader>
             </Table.Row>
-          ) : contacts.length === 0 ? (
-            <Table.Row>
-              <Table.Cell colSpan={6}>No contacts found.</Table.Cell>
-            </Table.Row>
-          ) : (
-            contacts.map((item, index) => (
-              <Table.Row key={item.id}>
-                <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
-                <Table.Cell>
-                  {displayOrDash(item.firstName)} {displayOrDash(item.lastName)}
-                </Table.Cell>
-                <Table.Cell>{displayOrDash(item.emailAddress)}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.customerName)}</Table.Cell>
-                <Table.Cell>{item.isPrimary ? "Yes" : "No"}</Table.Cell>
-                <Table.Cell>
-                  {displayOrDash(
-                    item.phoneNumbers?.find((p) => p.type === "Work")?.number
-                  )}
-                </Table.Cell>
-                <Table.Cell>
-                  {displayOrDash(
-                    item.phoneNumbers?.find((p) => p.type === "Mobile")?.number
-                  )}
-                </Table.Cell>
+          </Table.Header>
+          <Table.Body>
+            {loading ? (
+              <Table.Row>
+                <Table.Cell colSpan={7}>Loading...</Table.Cell>
               </Table.Row>
-            ))
-          )}
-        </Table.Body>
-      </Table.Root>
-    </Box>
-    {totalPages > 1 && (
-      <HStack justifyContent="center" mt={2}>
-        <Button
-          size="xs"
-          onClick={() => setPage(Math.max(1, page - 1))}
-          disabled={page === 1}
-        >
-          Prev
-        </Button>
-        <Text fontSize="sm">
-          Page {page} of {totalPages}
-        </Text>
-        <Button
-          size="xs"
-          onClick={() => setPage(Math.min(totalPages, page + 1))}
-          disabled={page === totalPages}
-        >
-          Next
-        </Button>
-      </HStack>
-    )}
-  </>
-));
+            ) : contacts.length === 0 ? (
+              <Table.Row>
+                <Table.Cell colSpan={7}>No contacts found.</Table.Cell>
+              </Table.Row>
+            ) : (
+              contacts.map((item, index) => (
+                <Table.Row
+                  key={item.id}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate(`/contacts/edit/${item.id}`)}
+                >
+                  <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
+                  <Table.Cell>
+                    {displayOrDash(item.firstName)}{" "}
+                    {displayOrDash(item.lastName)}
+                  </Table.Cell>
+                  <Table.Cell>{displayOrDash(item.emailAddress)}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.customerName)}</Table.Cell>
+                  <Table.Cell>{item.isPrimary ? "Yes" : "No"}</Table.Cell>
+                  <Table.Cell>
+                    {displayOrDash(
+                      item.phoneNumbers?.find((p) => p.type === "Work")?.number
+                    )}
+                  </Table.Cell>
+                  <Table.Cell>
+                    {displayOrDash(
+                      item.phoneNumbers?.find((p) => p.type === "Mobile")
+                        ?.number
+                    )}
+                  </Table.Cell>
+                </Table.Row>
+              ))
+            )}
+          </Table.Body>
+        </Table.Root>
+      </Box>
+      {totalPages > 1 && (
+        <HStack justifyContent="center" mt={2}>
+          <Button
+            size="xs"
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page === 1}
+          >
+            Prev
+          </Button>
+          <Text fontSize="sm">
+            Page {page} of {totalPages}
+          </Text>
+          <Button
+            size="xs"
+            onClick={() => setPage(Math.min(totalPages, page + 1))}
+            disabled={page === totalPages}
+          >
+            Next
+          </Button>
+        </HStack>
+      )}
+    </>
+  );
+});
 
 // Main Contacts Dashboard component
 const ContactDashboard: React.FC<ContactDashboardProps> = ({

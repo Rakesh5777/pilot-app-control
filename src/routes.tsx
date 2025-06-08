@@ -32,6 +32,7 @@ export const routes = [
         children: [
           { index: true, element: <Contacts /> },
           { path: "add", element: <AddContact /> },
+          { path: "edit/:id", element: <AddContact mode="edit" /> },
         ],
       },
       {

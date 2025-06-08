@@ -150,17 +150,6 @@ const AddCustomerForm: React.FC<{ mode?: "edit" }> = ({ mode }) => {
     });
   };
 
-  // Reset form and store on cancel
-  const handleCancel = () => {
-    reset();
-    useCreationStore.getState().resetStore();
-    toaster.create({
-      description: "Form has been reset.",
-      type: "info",
-    });
-    navigate("/customers");
-  };
-
   // Add a new comment field
   const addCommentField = () => {
     const current = getValues("comments") || [];
@@ -471,15 +460,6 @@ const AddCustomerForm: React.FC<{ mode?: "edit" }> = ({ mode }) => {
           </GridItem>
         </Grid>
         <HStack justifyContent="flex-end" mt={4} gap={4}>
-          <Button
-            variant="outline"
-            minWidth="100px"
-            onClick={handleCancel}
-            type="button"
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
           <Button type="submit" minWidth="100px" loading={isSubmitting}>
             {mode === "edit" ? "Update Customer" : "Save & Next"}
           </Button>

@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import {
   IoArrowBack,
   IoAddCircleOutline,
@@ -26,7 +26,7 @@ import {
   IoTrashOutline,
 } from "react-icons/io5";
 import { useCreationStore } from "@/store/creationStore";
-import { addContact } from "@/axios/contactApi";
+import { addContact, getContactById, updateContact } from "@/axios/contactApi";
 import { getCustomers } from "@/axios/customerApi";
 
 export interface PhoneNumber {
@@ -69,7 +69,12 @@ function getErrorMessage(error: unknown): string | undefined {
   return undefined;
 }
 
-const AddContact: React.FC = () => {
+interface AddContactProps {
+  mode?: "edit";
+}
+
+const AddContact: React.FC<AddContactProps> = ({ mode }) => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { customerData } = useCreationStore();
@@ -80,23 +85,11 @@ const AddContact: React.FC = () => {
     { value: string; label: string }[]
   >([]);
 
-  useEffect(() => {
-    getCustomers().then(
-      (customers: { customerCode: string; airlineName: string }[]) => {
-        setCustomerOptions(
-          customers.map((c) => ({
-            value: c.customerCode,
-            label: `${c.airlineName} (${c.customerCode})`,
-          }))
-        );
-      }
-    );
-  }, []);
-
   const {
     handleSubmit,
     control,
     formState: { errors, isSubmitting, isValid },
+    reset,
   } = useForm<{ contacts: ContactFormData[] }>({
     defaultValues: {
       contacts: [
@@ -131,6 +124,19 @@ const AddContact: React.FC = () => {
         });
         return;
       }
+      if (mode === "edit" && id) {
+        await updateContact(id, {
+          ...data.contacts[0],
+          customerId: selectedCustomerCode,
+        });
+        toaster.create({
+          title: "Contact Updated.",
+          description: `Contact updated successfully.`,
+          type: "success",
+        });
+        navigate("/contacts");
+        return;
+      }
       for (const contact of data.contacts) {
         await addContact({
           ...contact,
@@ -147,7 +153,6 @@ const AddContact: React.FC = () => {
         description: `Successfully saved ${data.contacts.length} contact(s) for the customer.`,
         type: "success",
       });
-      // resetStore(); // Reset store only at the end of the entire flow
       if (isCustomerCreationFlow) {
         navigate("/customers/add/afrdata");
       } else {
@@ -157,7 +162,10 @@ const AddContact: React.FC = () => {
       console.error("Error saving data:", error);
       toaster.create({
         title: "Error",
-        description: "Failed to save data.",
+        description:
+          mode === "edit"
+            ? "Failed to update contact."
+            : "Failed to save data.",
         type: "error",
       });
     }
@@ -179,6 +187,27 @@ const AddContact: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    getCustomers().then(
+      (customers: { customerCode: string; airlineName: string }[]) => {
+        setCustomerOptions(
+          customers.map((c) => ({
+            value: c.customerCode,
+            label: `${c.airlineName} (${c.customerCode})`,
+          }))
+        );
+      }
+    );
+    if (mode === "edit" && id) {
+      getContactById(id).then((contact) => {
+        setSelectedCustomerCode(contact.customerId);
+        // Reset the form with the contact data
+        // The form expects an array of contacts
+        reset({ contacts: [{ ...contact }] });
+      });
+    }
+  }, [mode, id, reset]);
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit, onError)}
@@ -193,7 +222,7 @@ const AddContact: React.FC = () => {
           onClick={handlePrevious}
         />
         <Heading size="lg" color="gray.700">
-          Add Contact
+          {mode === "edit" ? "Update Contact" : "Add Contact"}
         </Heading>
       </HStack>
 
@@ -256,7 +285,6 @@ const AddContact: React.FC = () => {
             mb={2}
             position="relative"
           >
-            {/* Trash icon for delete contact */}
             {fields.length > 1 && (
               <IconButton
                 aria-label="Delete contact"
@@ -534,21 +562,23 @@ const AddContact: React.FC = () => {
             </VStack>
           </Box>
         ))}
-        <Button
-          onClick={() =>
-            append({
-              firstName: "",
-              lastName: "",
-              emailAddress: "",
-              isPrimary: false,
-              phoneNumbers: [{ type: "Work", number: "" }],
-            })
-          }
-          variant="outline"
-          alignSelf="flex-end"
-        >
-          Add Contact
-        </Button>
+        {mode != "edit" && (
+          <Button
+            onClick={() =>
+              append({
+                firstName: "",
+                lastName: "",
+                emailAddress: "",
+                isPrimary: false,
+                phoneNumbers: [{ type: "Work", number: "" }],
+              })
+            }
+            variant="outline"
+            alignSelf="flex-end"
+          >
+            Add Contact
+          </Button>
+        )}
         <HStack justifyContent="space-between" mt={8}>
           {isCustomerCreationFlow ? (
             <Button
@@ -578,7 +608,11 @@ const AddContact: React.FC = () => {
               disabled={!isValid || isSubmitting}
               loading={isSubmitting}
             >
-              {isCustomerCreationFlow ? "Save & Next" : "Save Contact"}
+              {mode === "edit"
+                ? "Update Contact"
+                : isCustomerCreationFlow
+                  ? "Save & Next"
+                  : "Save Contact"}
             </Button>
           </HStack>
         </HStack>
