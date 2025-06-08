@@ -201,8 +201,6 @@ const AddContact: React.FC<AddContactProps> = ({ mode }) => {
     if (mode === "edit" && id) {
       getContactById(id).then((contact) => {
         setSelectedCustomerCode(contact.customerId);
-        // Reset the form with the contact data
-        // The form expects an array of contacts
         reset({ contacts: [{ ...contact }] });
       });
     }

@@ -167,9 +167,10 @@
       "q4": true,
       "q5": false,
       "q6": false,
-      "q7": false,
-      "q8": false,
-      "q9": false
+      "q7": "NA",
+      "q8": "NA",
+      "q9": "NA",
+      "q10": false
     },
     {
       "id": "e082",
@@ -178,12 +179,28 @@
       "q1": true,
       "q2": true,
       "q3": true,
-      "q4": false,
-      "q5": false,
-      "q6": false,
-      "q7": false,
-      "q8": false,
-      "q9": false
+      "q4": true,
+      "q5": true,
+      "q6": true,
+      "q7": "NA",
+      "q8": "NA",
+      "q9": "NA",
+      "q10": "NA"
+    },
+    {
+      "id": "79ea",
+      "customerId": "KING",
+      "customerName": "Kingfisher1",
+      "q1": true,
+      "q2": true,
+      "q3": false,
+      "q4": "NA",
+      "q5": true,
+      "q6": true,
+      "q7": "NA",
+      "q8": "NA",
+      "q9": false,
+      "q10": "NA"
     }
   ],
   "afrdata": [
@@ -254,6 +271,10 @@
     {
       "id": "q9",
       "question": "Is the customer ready for a Live Trial?"
+    },
+    {
+      "id": "q10",
+      "question": "New added question?"
     }
   ]
 }

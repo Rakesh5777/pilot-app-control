@@ -40,6 +40,7 @@ export const routes = [
         children: [
           { index: true, element: <ChecklistPage /> },
           { path: "add", element: <AddChecklist /> },
+          { path: "edit/:id", element: <AddChecklist mode="edit" /> },
         ],
       },
       {

@@ -1,12 +1,9 @@
 import api from "@/axios/api";
-import type {
-  ChecklistFormData,
-  Checklist,
-} from "@/pages/Checklist/AddChecklist";
+import type { ChecklistFormData } from "@/pages/Checklist/AddChecklist";
 
 export const getChecklists = async (
   customerId?: string
-): Promise<Checklist[]> => {
+): Promise<ChecklistFormData[]> => {
   const url = customerId
     ? `/checklists?customerId=${customerId}`
     : "/checklists";
@@ -16,8 +13,23 @@ export const getChecklists = async (
 
 export const addChecklist = async (
   checklist: ChecklistFormData
-): Promise<Checklist> => {
+): Promise<ChecklistFormData> => {
   const res = await api.post("/checklists", checklist);
+  return res.data;
+};
+
+export const getChecklistById = async (
+  id: string
+): Promise<ChecklistFormData> => {
+  const res = await api.get(`/checklists/${id}`);
+  return res.data;
+};
+
+export const updateChecklistById = async (
+  id: string,
+  checklist: ChecklistFormData
+): Promise<ChecklistFormData> => {
+  const res = await api.put(`/checklists/${id}`, checklist);
   return res.data;
 };
 

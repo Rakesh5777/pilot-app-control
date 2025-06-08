@@ -15,13 +15,16 @@ import {
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useForm, Controller } from "react-hook-form";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useCreationStore } from "@/store/creationStore";
 import {
   addChecklist,
   getChecklistQuestions,
   addChecklistQuestion,
+  getChecklists,
+  getChecklistById,
+  updateChecklistById,
 } from "@/axios/checklistApi";
 import { getCustomers } from "@/axios/customerApi";
 
@@ -32,13 +35,15 @@ export interface ChecklistFormData {
   [key: string]: string | boolean | undefined; // Allow dynamic checklist question keys (q1, q2, ...)
 }
 
-export interface Checklist extends ChecklistFormData {
-  id: string;
+interface AddChecklistProps {
+  mode?: "edit";
 }
 
-const AddChecklist: React.FC = () => {
+const AddChecklist: React.FC<AddChecklistProps> = ({ mode }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams();
+  const checklistId = mode === "edit" ? params.id : undefined;
   const {
     customerData,
     resetStore,
@@ -82,15 +87,6 @@ const AddChecklist: React.FC = () => {
             label: `${c.airlineName} (${c.customerCode})`,
           }))
         );
-        if (
-          isCustomerCreationFlow &&
-          customerData?.customerCode &&
-          customers.some((c) => c.customerCode === customerData.customerCode)
-        ) {
-          setSelectedCustomerCode(customerData.customerCode);
-          setValue("customerId", customerData.customerCode);
-          setValue("customerName", customerData.airlineName);
-        }
       })
       .catch((error) => {
         console.error("Failed to fetch customers:", error);
@@ -100,7 +96,9 @@ const AddChecklist: React.FC = () => {
           type: "error",
         });
       });
+  }, []);
 
+  useEffect(() => {
     setLoadingQuestions(true);
     getChecklistQuestions()
       .then((questions) => {
@@ -116,16 +114,30 @@ const AddChecklist: React.FC = () => {
         });
       })
       .finally(() => setLoadingQuestions(false));
+
+    if (mode === "edit" && checklistId) {
+      getChecklistById(checklistId).then((found) => {
+        if (found) {
+          reset(found);
+          setSelectedCustomerCode(found.customerId);
+        }
+      });
+    } else if (isCustomerCreationFlow && customerData?.customerCode) {
+      setSelectedCustomerCode(customerData.customerCode);
+      setValue("customerId", customerData.customerCode);
+      setValue("customerName", customerData.airlineName);
+    }
   }, [
-    customerData,
-    location.pathname,
-    isCustomerCreationFlow,
-    setValue,
+    mode,
+    checklistId,
+    reset,
     setChecklistQuestions,
+    isCustomerCreationFlow,
+    customerData,
+    setValue,
   ]);
 
   const onSubmit = async (data: ChecklistFormData) => {
-    console.log(data);
     if (!selectedCustomerCode && !isCustomerCreationFlow) {
       toaster.create({
         title: "Error",
@@ -149,8 +161,19 @@ const AddChecklist: React.FC = () => {
     };
 
     try {
-      const savedChecklist = await addChecklist(checklistPayload); // Assuming addChecklist returns the saved checklist
-      setChecklistData(savedChecklist); // Store checklist data in Zustand store
+      if (mode === "edit" && checklistId) {
+        await updateChecklistById(checklistId, { ...data, id: checklistId });
+        toaster.create({
+          title: "Checklist Updated.",
+          description: `Successfully updated checklist for ${customerNameToSubmit}.`,
+          type: "success",
+        });
+        navigate("/checklist");
+        return;
+      }
+
+      const savedChecklist = await addChecklist(checklistPayload);
+      setChecklistData(savedChecklist);
 
       toaster.create({
         title: "Checklist Added.",
@@ -159,12 +182,12 @@ const AddChecklist: React.FC = () => {
       });
 
       if (isCustomerCreationFlow) {
-        resetStore(); // Reset store after full creation flow is complete
-        navigate("/customers"); // Or to a success/summary page
+        resetStore();
+        navigate("/customers");
       } else {
-        navigate("/checklist"); // Navigate to the main checklist dashboard
+        navigate("/checklist");
       }
-      reset(); // Reset form fields
+      reset();
     } catch (error) {
       console.error("Error saving checklist:", error);
       toaster.create({
@@ -245,7 +268,9 @@ const AddChecklist: React.FC = () => {
           onClick={handlePrevious}
         />
         <Heading size="lg" color="fg.default">
-          Add Customer Checklist
+          {mode === "edit"
+            ? "Update Customer Checklist"
+            : "Add Customer Checklist"}
         </Heading>
       </HStack>
 
@@ -422,7 +447,7 @@ const AddChecklist: React.FC = () => {
             Previous
           </Button>
           <HStack gap={4}>
-            {isCustomerCreationFlow && (
+            {isCustomerCreationFlow && mode !== "edit" && (
               <Button
                 variant="ghost"
                 onClick={() => {
@@ -443,9 +468,11 @@ const AddChecklist: React.FC = () => {
                 isSubmitting
               }
             >
-              {isCustomerCreationFlow
-                ? "Save Checklist & Finish"
-                : "Save Checklist"}
+              {mode === "edit"
+                ? "Update Checklist"
+                : isCustomerCreationFlow
+                  ? "Save Checklist & Finish"
+                  : "Save Checklist"}
             </Button>
           </HStack>
         </HStack>

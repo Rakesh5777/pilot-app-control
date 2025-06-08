@@ -10,7 +10,7 @@ import {
   createListCollection,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import type { Checklist, ChecklistFormData } from "./AddChecklist";
+import type { ChecklistFormData } from "./AddChecklist";
 import { getCustomers } from "../../axios/customerApi";
 import type { Customer } from "../Customers/CustomerDashboard";
 import { toaster } from "@/components/ui/toaster";
@@ -100,156 +100,169 @@ const ChecklistHeader: React.FC<{
 );
 
 const ChecklistTable: React.FC<{
-  checklists: Checklist[];
+  checklists: ChecklistFormData[];
   isLoading: boolean;
   page: number;
   setPage: (page: number) => void;
   totalPages: number;
-}> = React.memo(({ checklists, isLoading, page, setPage, totalPages }) => {
-  const { checklistQuestions, setChecklistQuestions } = useCreationStore();
+  onRowClick?: (id: string) => void;
+}> = React.memo(
+  ({ checklists, isLoading, page, setPage, totalPages, onRowClick }) => {
+    const { checklistQuestions, setChecklistQuestions } = useCreationStore();
 
-  useEffect(() => {
-    if (checklistQuestions.length === 0) {
-      getChecklistQuestions()
-        .then((questions) => setChecklistQuestions(questions))
-        .catch((error: unknown) => {
-          console.error("Failed to fetch checklist questions:", error);
-        });
-    }
-  }, [checklistQuestions.length, setChecklistQuestions]);
+    useEffect(() => {
+      if (checklistQuestions.length === 0) {
+        getChecklistQuestions()
+          .then((questions) => setChecklistQuestions(questions))
+          .catch((error: unknown) => {
+            console.error("Failed to fetch checklist questions:", error);
+          });
+      }
+    }, [checklistQuestions.length, setChecklistQuestions]);
 
-  const questionHeaders = checklistQuestions.map((q, idx) => `Q${idx + 1}`);
-  const fullQuestionsMap: Record<string, string> = checklistQuestions.reduce(
-    (acc, q, idx) => {
-      acc[`Q${idx + 1}`] = q.question;
-      return acc;
-    },
-    {} as Record<string, string>
-  );
+    const questionHeaders = checklistQuestions.map((q, idx) => `Q${idx + 1}`);
+    const fullQuestionsMap: Record<string, string> = checklistQuestions.reduce(
+      (acc, q, idx) => {
+        acc[`Q${idx + 1}`] = q.question;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
 
-  return (
-    <>
-      <Box
-        borderWidth="1px"
-        borderRadius="lg"
-        borderColor="border.default"
-        overflowX="auto"
-      >
-        <Table.Root size="sm" variant="outline">
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeader>#</Table.ColumnHeader>
-              <Table.ColumnHeader>Customer Name</Table.ColumnHeader>
-              <Table.ColumnHeader>Customer Code</Table.ColumnHeader>
-              {questionHeaders.map((q) => (
-                <Table.ColumnHeader key={q} textAlign="center" px={2}>
-                  <Tooltip
-                    content={fullQuestionsMap[q]}
-                    positioning={{ placement: "top" }}
-                  >
-                    <Text as="span" cursor="default">
-                      {q}
-                    </Text>
-                  </Tooltip>
-                </Table.ColumnHeader>
-              ))}
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {isLoading ? (
+    return (
+      <>
+        <Box
+          borderWidth="1px"
+          borderRadius="lg"
+          borderColor="border.default"
+          overflowX="auto"
+        >
+          <Table.Root size="sm" variant="outline">
+            <Table.Header>
               <Table.Row>
-                <Table.Cell colSpan={6}>Loading...</Table.Cell>
+                <Table.ColumnHeader>#</Table.ColumnHeader>
+                <Table.ColumnHeader>Customer Name</Table.ColumnHeader>
+                <Table.ColumnHeader>Customer Code</Table.ColumnHeader>
+                {questionHeaders.map((q) => (
+                  <Table.ColumnHeader key={q} textAlign="center" px={2}>
+                    <Tooltip
+                      content={fullQuestionsMap[q]}
+                      positioning={{ placement: "top" }}
+                    >
+                      <Text as="span" cursor="default">
+                        {q}
+                      </Text>
+                    </Tooltip>
+                  </Table.ColumnHeader>
+                ))}
               </Table.Row>
-            ) : checklists.length === 0 ? (
-              <Table.Row>
-                <Table.Cell
-                  colSpan={questionHeaders.length + 4}
-                  textAlign="center"
-                  py={10}
-                  fontSize="sm"
-                  color="fg.muted"
-                >
-                  No checklists found for the current filter.
-                </Table.Cell>
-              </Table.Row>
-            ) : (
-              checklists.map((checklist, index) => (
-                <Table.Row
-                  key={checklist.id || index}
-                  _hover={{ bg: "bg.subtle" }}
-                >
-                  <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
-                  <Table.Cell whiteSpace="nowrap">
-                    {checklist.customerName || "N/A"}
-                  </Table.Cell>
-                  <Table.Cell whiteSpace="nowrap">
-                    {checklist.customerId}
-                  </Table.Cell>
-                  {questionHeaders.map((qKey) => (
-                    <Table.Cell key={qKey} textAlign="center" px={2}>
-                      {(() => {
-                        const value =
-                          checklist[
-                            qKey.toLowerCase() as keyof ChecklistFormData
-                          ];
-                        if (value === true)
-                          return (
-                            <Text color="green.600" fontWeight="medium">
-                              Yes
-                            </Text>
-                          );
-                        if (value === false)
-                          return (
-                            <Text color="red.600" fontWeight="medium">
-                              No
-                            </Text>
-                          );
-                        if (value === "NA")
-                          return (
-                            <Text color="gray.500" fontWeight="medium">
-                              NA
-                            </Text>
-                          );
-                        return (
-                          <Text color="gray.400">
-                            {displayOrDash(value as string)}
-                          </Text>
-                        );
-                      })()}
-                    </Table.Cell>
-                  ))}
+            </Table.Header>
+            <Table.Body>
+              {isLoading ? (
+                <Table.Row>
+                  <Table.Cell colSpan={6}>Loading...</Table.Cell>
                 </Table.Row>
-              ))
-            )}
-          </Table.Body>
-        </Table.Root>
-      </Box>
-      {totalPages > 1 && (
-        <HStack justifyContent="center" mt={4} mb={2}>
-          <Button
-            size="sm"
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page === 1 || isLoading}
-            variant="outline"
-          >
-            Prev
-          </Button>
-          <Text fontSize="sm" mx={3} color="fg.muted">
-            Page {page} of {totalPages}
-          </Text>
-          <Button
-            size="sm"
-            onClick={() => setPage(Math.min(totalPages, page + 1))}
-            disabled={page === totalPages || isLoading}
-            variant="outline"
-          >
-            Next
-          </Button>
-        </HStack>
-      )}
-    </>
-  );
-});
+              ) : checklists.length === 0 ? (
+                <Table.Row>
+                  <Table.Cell
+                    colSpan={questionHeaders.length + 4}
+                    textAlign="center"
+                    py={10}
+                    fontSize="sm"
+                    color="fg.muted"
+                  >
+                    No checklists found for the current filter.
+                  </Table.Cell>
+                </Table.Row>
+              ) : (
+                checklists.map((checklist, index) => (
+                  <Table.Row
+                    key={checklist.id || index}
+                    _hover={{
+                      bg: "bg.subtle",
+                      cursor: onRowClick ? "pointer" : undefined,
+                    }}
+                    onClick={
+                      onRowClick
+                        ? () => checklist.id && onRowClick(checklist.id)
+                        : undefined
+                    }
+                  >
+                    <Table.Cell>
+                      {(page - 1) * PAGE_SIZE + index + 1}
+                    </Table.Cell>
+                    <Table.Cell whiteSpace="nowrap">
+                      {checklist.customerName || "N/A"}
+                    </Table.Cell>
+                    <Table.Cell whiteSpace="nowrap">
+                      {checklist.customerId}
+                    </Table.Cell>
+                    {questionHeaders.map((qKey) => (
+                      <Table.Cell key={qKey} textAlign="center" px={2}>
+                        {(() => {
+                          const value =
+                            checklist[
+                              qKey.toLowerCase() as keyof ChecklistFormData
+                            ];
+                          if (value === true)
+                            return (
+                              <Text color="green.600" fontWeight="medium">
+                                Yes
+                              </Text>
+                            );
+                          if (value === false)
+                            return (
+                              <Text color="red.600" fontWeight="medium">
+                                No
+                              </Text>
+                            );
+                          if (value === "NA")
+                            return (
+                              <Text color="gray.500" fontWeight="medium">
+                                NA
+                              </Text>
+                            );
+                          return (
+                            <Text color="gray.400">
+                              {displayOrDash(value as string)}
+                            </Text>
+                          );
+                        })()}
+                      </Table.Cell>
+                    ))}
+                  </Table.Row>
+                ))
+              )}
+            </Table.Body>
+          </Table.Root>
+        </Box>
+        {totalPages > 1 && (
+          <HStack justifyContent="center" mt={4} mb={2}>
+            <Button
+              size="sm"
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1 || isLoading}
+              variant="outline"
+            >
+              Prev
+            </Button>
+            <Text fontSize="sm" mx={3} color="fg.muted">
+              Page {page} of {totalPages}
+            </Text>
+            <Button
+              size="sm"
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              disabled={page === totalPages || isLoading}
+              variant="outline"
+            >
+              Next
+            </Button>
+          </HStack>
+        )}
+      </>
+    );
+  }
+);
 
 const ChecklistDashboard: React.FC<ChecklistDashboardProps> = ({
   checklists: initialChecklists,
@@ -330,6 +343,10 @@ const ChecklistDashboard: React.FC<ChecklistDashboardProps> = ({
     navigate("/checklist/add");
   };
 
+  const handleRowClick = (id: string) => {
+    navigate(`/checklist/edit/${id}`);
+  };
+
   const isLoading = isLoadingInitialChecklists || isLoadingCustomers;
 
   return (
@@ -347,6 +364,7 @@ const ChecklistDashboard: React.FC<ChecklistDashboardProps> = ({
         page={page}
         setPage={setPage}
         totalPages={totalPages}
+        onRowClick={handleRowClick}
       />
     </VStack>
   );
