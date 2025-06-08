@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from "react";
 import {
   HStack,
   Box,
-  Input,
   Text,
   VStack,
   Button,
@@ -16,6 +15,8 @@ import { getCustomers } from "../../axios/customerApi";
 import type { Customer } from "../Customers/CustomerDashboard";
 import { toaster } from "@/components/ui/toaster";
 import { Tooltip } from "@/components/ui/tooltip";
+import { useCreationStore } from "@/store/creationStore";
+import { getChecklistQuestions } from "@/axios/checklistApi";
 
 interface ChecklistDashboardProps {
   checklists: Checklist[];
@@ -25,8 +26,6 @@ interface ChecklistDashboardProps {
 const PAGE_SIZE = 10;
 
 const ChecklistHeader: React.FC<{
-  search: string;
-  onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   customerFilter: string;
   onFilter: (value: string | null) => void;
   customerOptions: { value: string; label: string }[];
@@ -34,8 +33,6 @@ const ChecklistHeader: React.FC<{
   isLoadingCustomers: boolean;
 }> = React.memo(
   ({
-    search,
-    onSearch,
     customerFilter,
     onFilter,
     customerOptions,
@@ -50,7 +47,7 @@ const ChecklistHeader: React.FC<{
       flexWrap="wrap"
     >
       <Text fontSize="2xl" fontWeight="bold">
-        Contacts Dashboard
+        Check List Dashboard
       </Text>
       <HStack
         gap={2}
@@ -88,14 +85,6 @@ const ChecklistHeader: React.FC<{
           </Select.Positioner>
         </Select.Root>
 
-        {/* <Input
-          placeholder="Search checklist..."
-          value={search}
-          onChange={onSearch}
-          size="sm"
-          width="200px"
-          borderRadius="md"
-        /> */}
         <Button
           colorScheme="blue"
           onClick={onAdd}
@@ -116,29 +105,26 @@ const ChecklistTable: React.FC<{
   setPage: (page: number) => void;
   totalPages: number;
 }> = React.memo(({ checklists, isLoading, page, setPage, totalPages }) => {
-  const questionHeaders = [
-    "Q1",
-    "Q2",
-    "Q3",
-    "Q4",
-    "Q5",
-    "Q6",
-    "Q7",
-    "Q8",
-    "Q9",
-  ];
+  const { checklistQuestions, setChecklistQuestions } = useCreationStore();
 
-  const fullQuestionsMap: Record<string, string> = {
-    Q1: "Does the customer have iPads with iOS 16.6 or later?",
-    Q2: "Can the iPads download apps through the App Store?",
-    Q3: "Does FDC have Raw Flight Data with a minimum of 3 months of historical data?",
-    Q4: "Does the airline provide AFRs WITH Crew Codes PRIOR to flights being processed?",
-    Q5: "Does their Flight Data data frame documentation meet our requirements?",
-    Q6: "Has the customer set SOP Alert thresholds in the PilotApp (Fuel) template within FDC?",
-    Q7: "Has the customer been assisted in configuring the system in line with operational constraints and existing Safety & Fuel initiatives?",
-    Q8: "Has the customer selected relevant Metrics (KPI's & scores) in PilotApp?",
-    Q9: "Is the customer ready for a Live Trial?",
-  };
+  useEffect(() => {
+    if (checklistQuestions.length === 0) {
+      getChecklistQuestions()
+        .then((questions) => setChecklistQuestions(questions))
+        .catch((error: unknown) => {
+          console.error("Failed to fetch checklist questions:", error);
+        });
+    }
+  }, [checklistQuestions.length, setChecklistQuestions]);
+
+  const questionHeaders = checklistQuestions.map((q, idx) => `Q${idx + 1}`);
+  const fullQuestionsMap: Record<string, string> = checklistQuestions.reduce(
+    (acc, q, idx) => {
+      acc[`Q${idx + 1}`] = q.question;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
 
   return (
     <>
@@ -200,17 +186,31 @@ const ChecklistTable: React.FC<{
                   </Table.Cell>
                   {questionHeaders.map((qKey) => (
                     <Table.Cell key={qKey} textAlign="center" px={2}>
-                      {checklist[
-                        qKey.toLowerCase() as keyof ChecklistFormData
-                      ] ? (
-                        <Text color="green.600" fontWeight="medium">
-                          Yes
-                        </Text>
-                      ) : (
-                        <Text color="red.600" fontWeight="medium">
-                          No
-                        </Text>
-                      )}
+                      {(() => {
+                        const value =
+                          checklist[
+                            qKey.toLowerCase() as keyof ChecklistFormData
+                          ];
+                        if (value === true)
+                          return (
+                            <Text color="green.600" fontWeight="medium">
+                              Yes
+                            </Text>
+                          );
+                        if (value === false)
+                          return (
+                            <Text color="red.600" fontWeight="medium">
+                              No
+                            </Text>
+                          );
+                        if (value === "NA")
+                          return (
+                            <Text color="gray.500" fontWeight="medium">
+                              NA
+                            </Text>
+                          );
+                        return <Text color="gray.400">-</Text>;
+                      })()}
                     </Table.Cell>
                   ))}
                 </Table.Row>
@@ -251,7 +251,6 @@ const ChecklistDashboard: React.FC<ChecklistDashboardProps> = ({
   loading: isLoadingInitialChecklists,
 }) => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [customerFilter, setCustomerFilter] = useState<string | null>(null);
   const [customersMap, setCustomersMap] = useState<Record<string, string>>({});
@@ -308,35 +307,14 @@ const ChecklistDashboard: React.FC<ChecklistDashboardProps> = ({
     if (customerFilter) {
       result = result.filter((c) => c.customerId === customerFilter);
     }
-    if (searchTerm) {
-      const lowerSearchTerm = searchTerm.toLowerCase();
-      result = result.filter(
-        (checklist) =>
-          (checklist.customerName &&
-            checklist.customerName.toLowerCase().includes(lowerSearchTerm)) ||
-          (checklist.customerId &&
-            checklist.customerId.toLowerCase().includes(lowerSearchTerm)) ||
-          Object.entries(checklist).some(([key, value]) => {
-            if (key.match(/^q\d$/) && typeof value === "boolean") {
-              return (value ? "yes" : "no").includes(lowerSearchTerm);
-            }
-            return false;
-          })
-      );
-    }
     return result;
-  }, [checklistsWithCustomerName, searchTerm, customerFilter]);
+  }, [checklistsWithCustomerName, customerFilter]);
 
   const totalPages = Math.ceil(filteredChecklists.length / PAGE_SIZE);
   const paginatedChecklists = useMemo(
     () => filteredChecklists.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
     [filteredChecklists, page]
   );
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setPage(1);
-  };
 
   const handleFilterChange = (value: string | null) => {
     setCustomerFilter(value);
@@ -352,8 +330,6 @@ const ChecklistDashboard: React.FC<ChecklistDashboardProps> = ({
   return (
     <VStack align="stretch" gap={4} height="100%" p={{ base: 3, md: 5 }}>
       <ChecklistHeader
-        search={searchTerm}
-        onSearch={handleSearchChange}
         customerFilter={customerFilter || ""}
         onFilter={handleFilterChange}
         customerOptions={customerOptions}

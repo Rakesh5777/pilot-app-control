@@ -20,3 +20,8 @@ export const addChecklist = async (
   const res = await api.post("/checklists", checklist);
   return res.data;
 };
+
+export const getChecklistQuestions = async () => {
+  const res = await api.get("/checklistQuestions");
+  return res.data;
+};

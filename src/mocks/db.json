@@ -1,6 +1,211 @@
 {
-  "customers": [],
-  "contacts": [],
-  "checklists": [],
-  "afrdata": []
+  "customers": [
+    {
+      "id": "f5fb",
+      "airlineName": "indigo",
+      "customerCode": "indigo",
+      "iataCode": "INDGo",
+      "businessRegistrationNumber": "",
+      "countryRegion": "",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": []
+    },
+    {
+      "id": "c510",
+      "airlineName": "air india",
+      "customerCode": "air india",
+      "iataCode": "",
+      "businessRegistrationNumber": "",
+      "countryRegion": "",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": []
+    },
+    {
+      "id": "6c9c",
+      "airlineName": "vistara",
+      "customerCode": "vistara",
+      "iataCode": "",
+      "businessRegistrationNumber": "",
+      "countryRegion": "",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": []
+    }
+  ],
+  "contacts": [
+    {
+      "id": "cce8",
+      "firstName": "rakesh",
+      "lastName": "indigo",
+      "emailAddress": "rakeshreddy.k5777@gmail.com",
+      "isPrimary": true,
+      "phoneNumbers": [
+        {
+          "type": "Work",
+          "number": "9182494554"
+        }
+      ],
+      "customerId": "indigo",
+      "customerName": "indigo"
+    },
+    {
+      "id": "d49b",
+      "firstName": "rakesh",
+      "lastName": "indigo 1",
+      "emailAddress": "rakeshreddy.k5777@gmail.com",
+      "isPrimary": false,
+      "phoneNumbers": [
+        {
+          "type": "Work",
+          "number": "9182494555"
+        }
+      ],
+      "customerId": "indigo",
+      "customerName": "indigo"
+    },
+    {
+      "id": "24e2",
+      "firstName": "rakesh",
+      "lastName": "air india",
+      "emailAddress": "rakeshreddy.k5777@gmail.com",
+      "isPrimary": false,
+      "phoneNumbers": [
+        {
+          "type": "Work",
+          "number": "123"
+        }
+      ],
+      "customerId": "air india",
+      "customerName": "air india"
+    },
+    {
+      "id": "afda",
+      "firstName": "rakesh",
+      "lastName": "vistara",
+      "emailAddress": "rakeshreddy.k5777@gmail.com",
+      "isPrimary": false,
+      "phoneNumbers": [
+        {
+          "type": "Work",
+          "number": "12324"
+        }
+      ],
+      "customerId": "vistara",
+      "customerName": "vistara"
+    }
+  ],
+  "checklists": [
+    {
+      "id": "26ff",
+      "customerId": "indigo",
+      "customerName": "indigo",
+      "q1": true,
+      "q2": true,
+      "q3": true,
+      "q4": true,
+      "q5": false,
+      "q6": false,
+      "q7": false,
+      "q8": false,
+      "q9": false
+    },
+    {
+      "id": "e082",
+      "customerId": "vistara",
+      "customerName": "vistara",
+      "q1": true,
+      "q2": true,
+      "q3": true,
+      "q4": false,
+      "q5": false,
+      "q6": false,
+      "q7": false,
+      "q8": false,
+      "q9": false
+    },
+    {
+      "id": "b0ea",
+      "customerId": "indigo",
+      "customerName": "indigo",
+      "q1": false,
+      "q2": false,
+      "q3": "NA",
+      "q4": "NA",
+      "q5": "NA",
+      "q6": false,
+      "q7": false,
+      "q8": false,
+      "q9": false,
+      "q10": "NA"
+    }
+  ],
+  "afrdata": [
+    {
+      "id": "9978",
+      "flightsTotal": "1",
+      "organization": "1",
+      "flightsWithAFR": "1",
+      "flightsWithCaptainCode": "1",
+      "percentageWithCaptainCode": "1",
+      "pilotAppSuitable": false,
+      "customerId": "indigo"
+    },
+    {
+      "id": "49ec",
+      "flightsTotal": "231",
+      "organization": "12",
+      "flightsWithAFR": "1",
+      "flightsWithCaptainCode": "123",
+      "percentageWithCaptainCode": "1",
+      "pilotAppSuitable": false,
+      "customerId": "vistara"
+    }
+  ],
+  "checklistQuestions": [
+    {
+      "id": "q1",
+      "question": "Does the customer have iPads with iOS 16.6 or later?"
+    },
+    {
+      "id": "q2",
+      "question": "Can the iPads download apps through the App Store?"
+    },
+    {
+      "id": "q3",
+      "question": "Does FDC have Raw Flight Data with a minimum of 3 months of historical data?"
+    },
+    {
+      "id": "q4",
+      "question": "Does the airline provide AFRs WITH Crew Codes PRIOR to flights being processed?"
+    },
+    {
+      "id": "q5",
+      "question": "Does their Flight Data data frame documentation meet our requirements?"
+    },
+    {
+      "id": "q6",
+      "question": "Has the customer set SOP Alert thresholds in the PilotApp (Fuel) template within FDC?"
+    },
+    {
+      "id": "q7",
+      "question": "Has the customer been assisted in configuring the system in line with operational constraints and existing Safety & Fuel initiatives?"
+    },
+    {
+      "id": "q8",
+      "question": "Has the customer selected relevant Metrics (KPI's & scores) in PilotApp?"
+    },
+    {
+      "id": "q9",
+      "question": "Is the customer ready for a Live Trial?"
+    },
+    {
+      "id": "q10",
+      "question": "is customer is good enough to send live trail ? "
+    }
+  ]
 }

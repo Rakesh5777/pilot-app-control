@@ -11,13 +11,14 @@ import {
   VStack,
   createListCollection,
   IconButton,
+  Input,
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useCreationStore } from "@/store/creationStore";
-import { addChecklist } from "@/axios/checklistApi";
+import { addChecklist, getChecklistQuestions } from "@/axios/checklistApi";
 import { getCustomers } from "@/axios/customerApi";
 
 export interface ChecklistFormData {
@@ -42,48 +43,32 @@ export interface Checklist extends ChecklistFormData {
 const AddChecklist: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { customerData, resetStore, setChecklistData } = useCreationStore();
+  const {
+    customerData,
+    resetStore,
+    setChecklistData,
+    checklistQuestions,
+    setChecklistQuestions,
+  } = useCreationStore();
   const [selectedCustomerCode, setSelectedCustomerCode] = useState<
     string | undefined
   >(customerData?.customerCode);
   const [customerOptions, setCustomerOptions] = useState<
     { value: string; label: string }[]
   >([]);
-
-  useEffect(() => {
-    getCustomers()
-      .then((customers: { customerCode: string; airlineName: string }[]) => {
-        setCustomerOptions(
-          customers.map((c) => ({
-            value: c.customerCode,
-            label: `${c.airlineName} (${c.customerCode})`,
-          }))
-        );
-        // If in customer creation flow and customerData exists, pre-select it
-        if (
-          isCustomerCreationFlow &&
-          customerData?.customerCode &&
-          customers.some((c) => c.customerCode === customerData.customerCode)
-        ) {
-          setSelectedCustomerCode(customerData.customerCode);
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to fetch customers:", error);
-        toaster.create({
-          title: "Error",
-          description: "Could not load customers.",
-          type: "error",
-        });
-      });
-  }, [customerData, location.pathname]); // Added location.pathname to re-evaluate if path changes
-
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
+  const [showAddQuestion, setShowAddQuestion] = useState(false);
+  const [newQuestion, setNewQuestion] = useState("");
+  const [addingQuestion, setAddingQuestion] = useState(false);
+  const isCustomerCreationFlow = location.pathname.includes(
+    "/customers/add/checklist"
+  );
   const {
     handleSubmit,
     control,
     formState: { isSubmitting, isValid },
-    setValue, // Keep setValue if needed for dynamic changes
-    reset, // Added reset for form clearing
+    setValue,
+    reset,
   } = useForm<ChecklistFormData>({
     defaultValues: {
       customerId: customerData?.customerCode || "",
@@ -98,21 +83,58 @@ const AddChecklist: React.FC = () => {
       q8: false,
       q9: false,
     },
-    mode: "onTouched", // Or "onChange" for more immediate validation
+    mode: "onTouched",
   });
 
-  const isCustomerCreationFlow = location.pathname.includes(
-    "/customers/add/checklist"
-  );
-
   useEffect(() => {
-    // Pre-fill customer details if in creation flow and customerData is available
-    if (isCustomerCreationFlow && customerData) {
-      setValue("customerId", customerData.customerCode);
-      setValue("customerName", customerData.airlineName);
-      setSelectedCustomerCode(customerData.customerCode);
-    }
-  }, [isCustomerCreationFlow, customerData, setValue]);
+    getCustomers()
+      .then((customers: { customerCode: string; airlineName: string }[]) => {
+        setCustomerOptions(
+          customers.map((c) => ({
+            value: c.customerCode,
+            label: `${c.airlineName} (${c.customerCode})`,
+          }))
+        );
+        if (
+          isCustomerCreationFlow &&
+          customerData?.customerCode &&
+          customers.some((c) => c.customerCode === customerData.customerCode)
+        ) {
+          setSelectedCustomerCode(customerData.customerCode);
+          setValue("customerId", customerData.customerCode);
+          setValue("customerName", customerData.airlineName);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch customers:", error);
+        toaster.create({
+          title: "Error",
+          description: "Could not load customers.",
+          type: "error",
+        });
+      });
+
+    setLoadingQuestions(true);
+    getChecklistQuestions()
+      .then((questions) => {
+        setChecklistQuestions(questions);
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to fetch checklist questions:", error);
+        toaster.create({
+          title: "Error",
+          description: "Could not load checklist questions.",
+          type: "error",
+        });
+      })
+      .finally(() => setLoadingQuestions(false));
+  }, [
+    customerData,
+    location.pathname,
+    isCustomerCreationFlow,
+    setValue,
+    setChecklistQuestions,
+  ]);
 
   const onSubmit = async (data: ChecklistFormData) => {
     if (!selectedCustomerCode && !isCustomerCreationFlow) {
@@ -164,7 +186,7 @@ const AddChecklist: React.FC = () => {
     }
   };
 
-  const onError = (formErrors: any) => {
+  const onError = (formErrors: Record<string, unknown>) => {
     console.error("Form validation errors:", formErrors);
     toaster.create({
       title: "Validation Error.",
@@ -181,44 +203,26 @@ const AddChecklist: React.FC = () => {
     }
   };
 
-  const checklistItems = [
-    {
-      name: "q1",
-      label: "Does the customer have iPads with iOS 16.6 or later?",
-    },
-    { name: "q2", label: "Can the iPads download apps through the App Store?" },
-    {
-      name: "q3",
-      label:
-        "Does FDC have Raw Flight Data with a minimum of 3 months of historical data?",
-    },
-    {
-      name: "q4",
-      label:
-        "Does the airline provide AFRs WITH Crew Codes PRIOR to flights being processed?",
-    },
-    {
-      name: "q5",
-      label:
-        "Does their Flight Data data frame documentation meet our requirements?",
-    },
-    {
-      name: "q6",
-      label:
-        "Has the customer set SOP Alert thresholds in the PilotApp (Fuel) template within FDC?",
-    },
-    {
-      name: "q7",
-      label:
-        "Has the customer been assisted in configuring the system in line with operational constraints and existing Safety & Fuel initiatives?",
-    },
-    {
-      name: "q8",
-      label:
-        "Has the customer selected relevant Metrics (KPI's & scores) in PilotApp?",
-    },
-    { name: "q9", label: "Is the customer ready for a Live Trial?" },
-  ];
+  const handleAddChecklistQuestion = async () => {
+    if (!newQuestion.trim()) return;
+    setAddingQuestion(true);
+    try {
+      const newQ = { id: `q${checklistQuestions.length + 1}`, question: newQuestion };
+      await fetch("http://localhost:3001/checklistQuestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newQ),
+      });
+      setChecklistQuestions([...checklistQuestions, newQ]);
+      setNewQuestion("");
+      setShowAddQuestion(false);
+      toaster.create({ title: "Success", description: "Checklist question added.", type: "success" });
+    } catch (e) {
+      toaster.create({ title: "Error", description: "Failed to add question.", type: "error" });
+    } finally {
+      setAddingQuestion(false);
+    }
+  };
 
   return (
     <form
@@ -297,61 +301,108 @@ const AddChecklist: React.FC = () => {
           <Fieldset.Legend fontWeight="semibold" mb={3} fontSize="md">
             Checklist Questions
           </Fieldset.Legend>
-          {checklistItems.map((item) => (
-            <Controller
-              key={item.name}
-              name={item.name as keyof ChecklistFormData}
-              control={control}
-              // No rules needed here as boolean is sufficient unless a specific question is mandatory
-              render={({ field }) => (
-                <Field.Root id={item.name} mb={4}>
-                  <HStack
-                    width={"100%"}
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <Field.Label
-                      htmlFor={item.name}
-                      flex="1"
-                      mr={4}
-                      fontSize="sm"
+          {loadingQuestions ? (
+            <Text>Loading questions...</Text>
+          ) : checklistQuestions.length === 0 ? (
+            <Text>No checklist questions found.</Text>
+          ) : (
+            checklistQuestions.map((item) => (
+              <Controller
+                key={item.id}
+                name={item.id as keyof ChecklistFormData}
+                control={control}
+                render={({ field }) => (
+                  <Field.Root id={item.id} mb={4}>
+                    <HStack
+                      width={"100%"}
+                      justifyContent="space-between"
+                      alignItems="center"
                     >
-                      {item.label}
-                    </Field.Label>
-                    <RadioGroup.Root
-                      name={field.name}
-                      value={field.value ? "Yes" : "No"}
-                      onValueChange={(details) => {
-                        field.onChange(details.value === "Yes");
-                      }}
-                    >
-                      <HStack gap={4}>
-                        {" "}
-                        {/* Added: Ensures horizontal layout and spacing */}
-                        <RadioGroup.Item
-                          value="Yes"
-                          gap={1} // Preserved: For internal spacing of this item
-                          id={`${item.name}-yes`}
-                        >
-                          <RadioGroup.ItemHiddenInput onBlur={field.onBlur} />{" "}
-                          <RadioGroup.ItemIndicator />{" "}
-                          <RadioGroup.ItemText>Yes</RadioGroup.ItemText>
-                        </RadioGroup.Item>
-                        <RadioGroup.Item
-                          value="No"
-                          id={`${item.name}-no`} // Preserved: Original "No" item attributes
-                        >
-                          <RadioGroup.ItemHiddenInput onBlur={field.onBlur} />{" "}
-                          <RadioGroup.ItemIndicator />{" "}
-                          <RadioGroup.ItemText>No</RadioGroup.ItemText>
-                        </RadioGroup.Item>
-                      </HStack>
-                    </RadioGroup.Root>
-                  </HStack>
-                </Field.Root>
-              )}
-            />
-          ))}
+                      <Field.Label
+                        htmlFor={item.id}
+                        flex="1"
+                        mr={4}
+                        fontSize="sm"
+                      >
+                        {item.question}
+                      </Field.Label>
+                      <RadioGroup.Root
+                        name={field.name}
+                        value={
+                          field.value === true
+                            ? "Yes"
+                            : field.value === false
+                            ? "No"
+                            : "NA"
+                        }
+                        onValueChange={(details) => {
+                          if (details.value === "Yes") field.onChange(true);
+                          else if (details.value === "No") field.onChange(false);
+                          else field.onChange("NA");
+                        }}
+                      >
+                        <HStack gap={4}>
+                          <RadioGroup.Item value="Yes" id={`${item.id}-yes`}>
+                            <RadioGroup.ItemHiddenInput onBlur={field.onBlur} />
+                            <RadioGroup.ItemIndicator />
+                            <RadioGroup.ItemText>Yes</RadioGroup.ItemText>
+                          </RadioGroup.Item>
+                          <RadioGroup.Item value="No" id={`${item.id}-no`}>
+                            <RadioGroup.ItemHiddenInput onBlur={field.onBlur} />
+                            <RadioGroup.ItemIndicator />
+                            <RadioGroup.ItemText>No</RadioGroup.ItemText>
+                          </RadioGroup.Item>
+                          <RadioGroup.Item value="NA" id={`${item.id}-na`}>
+                            <RadioGroup.ItemHiddenInput onBlur={field.onBlur} />
+                            <RadioGroup.ItemIndicator />
+                            <RadioGroup.ItemText>
+                              Not Applicable
+                            </RadioGroup.ItemText>
+                          </RadioGroup.Item>
+                        </HStack>
+                      </RadioGroup.Root>
+                    </HStack>
+                  </Field.Root>
+                )}
+              />
+            ))
+          )}
+          <Button
+            mt={4}
+            colorScheme="blue"
+            variant="outline"
+            onClick={() => setShowAddQuestion(true)}
+          >
+            + Add Checklist Question
+          </Button>
+          {showAddQuestion && (
+            <VStack align="stretch" mt={4} gap={2}>
+              <Field.Root>
+                <Field.Label>New Question</Field.Label>
+                <Input
+                  value={newQuestion}
+                  onChange={(e) => setNewQuestion(e.target.value)}
+                  placeholder="Enter checklist question"
+                />
+              </Field.Root>
+              <HStack>
+                <Button
+                  colorScheme="blue"
+                  onClick={handleAddChecklistQuestion}
+                  loading={addingQuestion}
+                  disabled={!newQuestion.trim()}
+                >
+                  Save
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowAddQuestion(false)}
+                >
+                  Cancel
+                </Button>
+              </HStack>
+            </VStack>
+          )}
         </Fieldset.Root>
 
         <HStack justifyContent="space-between" mt={8}>
