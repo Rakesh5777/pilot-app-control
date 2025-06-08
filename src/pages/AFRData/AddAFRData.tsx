@@ -16,9 +16,9 @@ import {
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useForm, Controller } from "react-hook-form";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
-import { addAFRData } from "@/axios/afrDataApi";
+import { addAFRData, getAFRDataById, updateAFRData } from "@/axios/afrDataApi";
 import { getCustomers } from "@/axios/customerApi";
 import { useCreationStore } from "@/store/creationStore";
 
@@ -37,7 +37,12 @@ export interface AFRData extends AFRDataType {
   id: string;
 }
 
-const AddAFRData: React.FC = () => {
+interface AddAFRDataProps {
+  mode?: "edit";
+}
+
+const AddAFRData: React.FC<AddAFRDataProps> = ({ mode }) => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { customerData } = useCreationStore();
@@ -48,6 +53,23 @@ const AddAFRData: React.FC = () => {
     { value: string; label: string }[]
   >([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
+
+  const {
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting, isValid },
+    reset,
+  } = useForm<AFRDataType>({
+    defaultValues: {
+      flightsTotal: "",
+      organization: "",
+      flightsWithAFR: "",
+      flightsWithCaptainCode: "",
+      percentageWithCaptainCode: "",
+      pilotAppSuitable: false,
+    },
+    mode: "onTouched",
+  });
 
   useEffect(() => {
     getCustomers().then(
@@ -70,27 +92,27 @@ const AddAFRData: React.FC = () => {
         setSelectedCustomerId("");
       }
     );
-  }, [isCustomerCreationFlow, customerData]);
-
-  const {
-    handleSubmit,
-    control,
-    formState: { errors, isSubmitting, isValid },
-  } = useForm<AFRDataType>({
-    defaultValues: {
-      flightsTotal: "",
-      organization: "",
-      flightsWithAFR: "",
-      flightsWithCaptainCode: "",
-      percentageWithCaptainCode: "",
-      pilotAppSuitable: false,
-    },
-    mode: "onTouched",
-  });
+    if (mode === "edit" && id) {
+      getAFRDataById(id).then((data) => {
+        setSelectedCustomerId(data.customerId || "");
+        reset(data);
+      });
+    }
+  }, [isCustomerCreationFlow, customerData, mode, id, reset]);
 
   const onSubmit = async (data: AFRDataType) => {
     try {
       const afrDataWithCustomer = { ...data, customerId: selectedCustomerId };
+      if (mode === "edit" && id) {
+        await updateAFRData(id, afrDataWithCustomer);
+        toaster.create({
+          title: "AFR Data Updated.",
+          description: "Successfully updated AFR data.",
+          type: "success",
+        });
+        navigate("/afrdata");
+        return;
+      }
       await addAFRData(afrDataWithCustomer);
       toaster.create({
         title: "AFR Data Added.",
@@ -106,7 +128,10 @@ const AddAFRData: React.FC = () => {
       console.error("Error saving data:", error);
       toaster.create({
         title: "Error",
-        description: "Failed to save AFR data.",
+        description:
+          mode === "edit"
+            ? "Failed to update AFR data."
+            : "Failed to save AFR data.",
         type: "error",
       });
     }
@@ -142,7 +167,7 @@ const AddAFRData: React.FC = () => {
           onClick={handlePrevious}
         />
         <Heading size="lg" color="gray.700">
-          Create AFR Data
+          {mode === "edit" ? "Update AFR Data" : "Create AFR Data"}
         </Heading>
       </HStack>
 
@@ -360,7 +385,11 @@ const AddAFRData: React.FC = () => {
               disabled={!isValid || isSubmitting}
               minW={32}
             >
-              {isCustomerCreationFlow ? "Save & Next" : "Submit"}
+              {mode === "edit"
+                ? "Update AFR Data"
+                : isCustomerCreationFlow
+                  ? "Save & Next"
+                  : "Submit"}
             </Button>
           </HStack>
         </HStack>

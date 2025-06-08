@@ -6,9 +6,20 @@ export const getAFRData = async (): Promise<AFRData[]> => {
   return res.data;
 };
 
-export const addAFRData = async (
-  contact: AFRDataType
+export const addAFRData = async (afrData: AFRDataType): Promise<AFRData> => {
+  const res = await api.post("/afrdata", afrData);
+  return res.data;
+};
+
+export const getAFRDataById = async (id: string): Promise<AFRData> => {
+  const res = await api.get(`/afrdata/${id}`);
+  return res.data;
+};
+
+export const updateAFRData = async (
+  id: string,
+  afrData: AFRDataType
 ): Promise<AFRData> => {
-  const res = await api.post("/afrdata", contact);
+  const res = await api.put(`/afrdata/${id}`, afrData);
   return res.data;
 };

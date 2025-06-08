@@ -47,6 +47,7 @@ export const routes = [
         children: [
           { index: true, element: <AFRData /> },
           { path: "add", element: <AddAFRData /> },
+          { path: "edit/:id", element: <AddAFRData mode="edit" /> },
         ],
       },
     ],

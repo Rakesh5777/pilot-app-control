@@ -10,7 +10,7 @@ import {
   Select,
   createListCollection,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { AFRDataType } from "./AddAFRData";
 import { getCustomers } from "@/axios/customerApi";
 import { displayOrDash } from "@/utils/utils";
@@ -110,85 +110,96 @@ const AFRDataTable: React.FC<{
   page: number;
   setPage: (page: number) => void;
   totalPages: number;
-}> = React.memo(({ afrData, loading, page, setPage, totalPages }) => (
-  <>
-    <Box
-      borderWidth="1px"
-      borderRadius="lg"
-      borderColor="border.default"
-      overflowX="auto"
-      overflowY="auto"
-    >
-      <Table.Root size="sm" variant="outline">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeader>#</Table.ColumnHeader>
-            <Table.ColumnHeader>Customer Name</Table.ColumnHeader>
-            <Table.ColumnHeader>Customer Code</Table.ColumnHeader>
-            <Table.ColumnHeader>Flights Total</Table.ColumnHeader>
-            <Table.ColumnHeader>Organization</Table.ColumnHeader>
-            <Table.ColumnHeader>Flights With AFR</Table.ColumnHeader>
-            <Table.ColumnHeader>Flights With Captain Code</Table.ColumnHeader>
-            <Table.ColumnHeader>
-              Percentage With Captain Code
-            </Table.ColumnHeader>
-            <Table.ColumnHeader>Pilot App Suitable</Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {loading ? (
+}> = React.memo(({ afrData, loading, page, setPage, totalPages }) => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <Box
+        borderWidth="1px"
+        borderRadius="lg"
+        borderColor="border.default"
+        overflowX="auto"
+        overflowY="auto"
+      >
+        <Table.Root size="sm" variant="outline">
+          <Table.Header>
             <Table.Row>
-              <Table.Cell colSpan={9}>Loading...</Table.Cell>
+              <Table.ColumnHeader>#</Table.ColumnHeader>
+              <Table.ColumnHeader>Customer Name</Table.ColumnHeader>
+              <Table.ColumnHeader>Customer Code</Table.ColumnHeader>
+              <Table.ColumnHeader>Flights Total</Table.ColumnHeader>
+              <Table.ColumnHeader>Organization</Table.ColumnHeader>
+              <Table.ColumnHeader>Flights With AFR</Table.ColumnHeader>
+              <Table.ColumnHeader>Flights With Captain Code</Table.ColumnHeader>
+              <Table.ColumnHeader>
+                Percentage With Captain Code
+              </Table.ColumnHeader>
+              <Table.ColumnHeader>Pilot App Suitable</Table.ColumnHeader>
             </Table.Row>
-          ) : afrData.length === 0 ? (
-            <Table.Row>
-              <Table.Cell colSpan={9}>No AFR data found.</Table.Cell>
-            </Table.Row>
-          ) : (
-            afrData.map((item, index) => (
-              <Table.Row key={item.id || index}>
-                <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.customerName)}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.customerCode)}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.flightsTotal)}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.organization)}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.flightsWithAFR)}</Table.Cell>
-                <Table.Cell>
-                  {displayOrDash(item.flightsWithCaptainCode)}
-                </Table.Cell>
-                <Table.Cell>
-                  {displayOrDash(item.percentageWithCaptainCode)}
-                </Table.Cell>
-                <Table.Cell>{item.pilotAppSuitable ? "Yes" : "No"}</Table.Cell>
+          </Table.Header>
+          <Table.Body>
+            {loading ? (
+              <Table.Row>
+                <Table.Cell colSpan={9}>Loading...</Table.Cell>
               </Table.Row>
-            ))
-          )}
-        </Table.Body>
-      </Table.Root>
-    </Box>
-    {totalPages > 1 && (
-      <HStack justifyContent="center" mt={2}>
-        <Button
-          size="xs"
-          onClick={() => setPage(Math.max(1, page - 1))}
-          disabled={page === 1}
-        >
-          Prev
-        </Button>
-        <Text fontSize="sm">
-          Page {page} of {totalPages}
-        </Text>
-        <Button
-          size="xs"
-          onClick={() => setPage(Math.min(totalPages, page + 1))}
-          disabled={page === totalPages}
-        >
-          Next
-        </Button>
-      </HStack>
-    )}
-  </>
-));
+            ) : afrData.length === 0 ? (
+              <Table.Row>
+                <Table.Cell colSpan={9}>No AFR data found.</Table.Cell>
+              </Table.Row>
+            ) : (
+              afrData.map((item, index) => (
+                <Table.Row
+                  key={item.id || index}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    navigate(`/afrdata/edit/${item.id}`);
+                  }}
+                >
+                  <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.customerName)}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.customerCode)}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.flightsTotal)}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.organization)}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.flightsWithAFR)}</Table.Cell>
+                  <Table.Cell>
+                    {displayOrDash(item.flightsWithCaptainCode)}
+                  </Table.Cell>
+                  <Table.Cell>
+                    {displayOrDash(item.percentageWithCaptainCode)}
+                  </Table.Cell>
+                  <Table.Cell>
+                    {item.pilotAppSuitable ? "Yes" : "No"}
+                  </Table.Cell>
+                </Table.Row>
+              ))
+            )}
+          </Table.Body>
+        </Table.Root>
+      </Box>
+      {totalPages > 1 && (
+        <HStack justifyContent="center" mt={2}>
+          <Button
+            size="xs"
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page === 1}
+          >
+            Prev
+          </Button>
+          <Text fontSize="sm">
+            Page {page} of {totalPages}
+          </Text>
+          <Button
+            size="xs"
+            onClick={() => setPage(Math.min(totalPages, page + 1))}
+            disabled={page === totalPages}
+          >
+            Next
+          </Button>
+        </HStack>
+      )}
+    </>
+  );
+});
 
 const AFRDataDashboard: React.FC<AFRDataDashboardProps> = ({
   afrData,

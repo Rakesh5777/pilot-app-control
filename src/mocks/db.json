@@ -194,7 +194,7 @@
       "flightsWithAFR": "1",
       "flightsWithCaptainCode": "1",
       "percentageWithCaptainCode": "1",
-      "pilotAppSuitable": false,
+      "pilotAppSuitable": true,
       "customerId": "indigo"
     },
     {
@@ -213,7 +213,7 @@
       "organization": "123",
       "flightsWithAFR": "123",
       "flightsWithCaptainCode": "412",
-      "percentageWithCaptainCode": "",
+      "percentageWithCaptainCode": "12",
       "pilotAppSuitable": false,
       "customerId": "KING"
     }
