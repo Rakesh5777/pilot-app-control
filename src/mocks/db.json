@@ -35,6 +35,18 @@
       "industry": "Airline",
       "customerType": "Lead",
       "comments": []
+    },
+    {
+      "id": "e708",
+      "airlineName": "Kingfisher",
+      "customerCode": "KING",
+      "iataCode": "king",
+      "businessRegistrationNumber": "1234",
+      "countryRegion": "",
+      "fleetSize": "1",
+      "industry": "Airline",
+      "customerType": "Lead",
+      "comments": []
     }
   ],
   "contacts": [
@@ -97,6 +109,21 @@
       ],
       "customerId": "vistara",
       "customerName": "vistara"
+    },
+    {
+      "id": "2419",
+      "firstName": "Rakesh",
+      "lastName": "Kingfisher",
+      "emailAddress": "rakesh@kingfisher.com",
+      "isPrimary": false,
+      "phoneNumbers": [
+        {
+          "type": "Work",
+          "number": "9182494554"
+        }
+      ],
+      "customerId": "KING",
+      "customerName": "Kingfisher"
     }
   ],
   "checklists": [
@@ -127,21 +154,6 @@
       "q7": false,
       "q8": false,
       "q9": false
-    },
-    {
-      "id": "b0ea",
-      "customerId": "indigo",
-      "customerName": "indigo",
-      "q1": false,
-      "q2": false,
-      "q3": "NA",
-      "q4": "NA",
-      "q5": "NA",
-      "q6": false,
-      "q7": false,
-      "q8": false,
-      "q9": false,
-      "q10": "NA"
     }
   ],
   "afrdata": [
@@ -164,6 +176,16 @@
       "percentageWithCaptainCode": "1",
       "pilotAppSuitable": false,
       "customerId": "vistara"
+    },
+    {
+      "id": "8ea6",
+      "flightsTotal": "1090",
+      "organization": "123",
+      "flightsWithAFR": "123",
+      "flightsWithCaptainCode": "412",
+      "percentageWithCaptainCode": "",
+      "pilotAppSuitable": false,
+      "customerId": "KING"
     }
   ],
   "checklistQuestions": [
@@ -202,10 +224,6 @@
     {
       "id": "q9",
       "question": "Is the customer ready for a Live Trial?"
-    },
-    {
-      "id": "q10",
-      "question": "is customer is good enough to send live trail ? "
     }
   ]
 }

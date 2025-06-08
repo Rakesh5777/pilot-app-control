@@ -18,22 +18,18 @@ import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useCreationStore } from "@/store/creationStore";
-import { addChecklist, getChecklistQuestions } from "@/axios/checklistApi";
+import {
+  addChecklist,
+  getChecklistQuestions,
+  addChecklistQuestion,
+} from "@/axios/checklistApi";
 import { getCustomers } from "@/axios/customerApi";
 
 export interface ChecklistFormData {
   id?: string;
   customerId?: string;
   customerName?: string;
-  q1: boolean;
-  q2: boolean;
-  q3: boolean;
-  q4: boolean;
-  q5: boolean;
-  q6: boolean;
-  q7: boolean;
-  q8: boolean;
-  q9: boolean;
+  [key: string]: string | boolean | undefined; // Allow dynamic checklist question keys (q1, q2, ...)
 }
 
 export interface Checklist extends ChecklistFormData {
@@ -73,15 +69,6 @@ const AddChecklist: React.FC = () => {
     defaultValues: {
       customerId: customerData?.customerCode || "",
       customerName: customerData?.airlineName || "",
-      q1: false,
-      q2: false,
-      q3: false,
-      q4: false,
-      q5: false,
-      q6: false,
-      q7: false,
-      q8: false,
-      q9: false,
     },
     mode: "onTouched",
   });
@@ -118,6 +105,7 @@ const AddChecklist: React.FC = () => {
     getChecklistQuestions()
       .then((questions) => {
         setChecklistQuestions(questions);
+        setDefaultValueOfForm();
       })
       .catch((error: unknown) => {
         console.error("Failed to fetch checklist questions:", error);
@@ -137,6 +125,7 @@ const AddChecklist: React.FC = () => {
   ]);
 
   const onSubmit = async (data: ChecklistFormData) => {
+    console.log(data);
     if (!selectedCustomerCode && !isCustomerCreationFlow) {
       toaster.create({
         title: "Error",
@@ -207,20 +196,38 @@ const AddChecklist: React.FC = () => {
     if (!newQuestion.trim()) return;
     setAddingQuestion(true);
     try {
-      const newQ = { id: `q${checklistQuestions.length + 1}`, question: newQuestion };
-      await fetch("http://localhost:3001/checklistQuestions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newQ),
-      });
+      const newQ = {
+        id: `q${checklistQuestions.length + 1}`,
+        question: newQuestion,
+      };
+      await addChecklistQuestion(newQ);
       setChecklistQuestions([...checklistQuestions, newQ]);
+      setValue(newQ.id, false); // Set default value for new question form
       setNewQuestion("");
       setShowAddQuestion(false);
-      toaster.create({ title: "Success", description: "Checklist question added.", type: "success" });
-    } catch (e) {
-      toaster.create({ title: "Error", description: "Failed to add question.", type: "error" });
+      toaster.create({
+        title: "Success",
+        description: "Checklist question added.",
+        type: "success",
+      });
+    } catch {
+      toaster.create({
+        title: "Error",
+        description: "Failed to add question.",
+        type: "error",
+      });
     } finally {
       setAddingQuestion(false);
+    }
+  };
+
+  const setDefaultValueOfForm = () => {
+    if (checklistQuestions.length > 0) {
+      reset({
+        customerId: customerData?.customerCode || "",
+        customerName: customerData?.airlineName || "",
+        ...Object.fromEntries(checklistQuestions.map((q) => [q.id, false])),
+      });
     }
   };
 
@@ -309,7 +316,7 @@ const AddChecklist: React.FC = () => {
             checklistQuestions.map((item) => (
               <Controller
                 key={item.id}
-                name={item.id as keyof ChecklistFormData}
+                name={item.id}
                 control={control}
                 render={({ field }) => (
                   <Field.Root id={item.id} mb={4}>
@@ -332,12 +339,13 @@ const AddChecklist: React.FC = () => {
                           field.value === true
                             ? "Yes"
                             : field.value === false
-                            ? "No"
-                            : "NA"
+                              ? "No"
+                              : "NA"
                         }
                         onValueChange={(details) => {
                           if (details.value === "Yes") field.onChange(true);
-                          else if (details.value === "No") field.onChange(false);
+                          else if (details.value === "No")
+                            field.onChange(false);
                           else field.onChange("NA");
                         }}
                       >

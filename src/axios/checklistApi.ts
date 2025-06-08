@@ -25,3 +25,11 @@ export const getChecklistQuestions = async () => {
   const res = await api.get("/checklistQuestions");
   return res.data;
 };
+
+export const addChecklistQuestion = async (question: {
+  id: string;
+  question: string;
+}) => {
+  const res = await api.post("/checklistQuestions", question);
+  return res.data;
+};
