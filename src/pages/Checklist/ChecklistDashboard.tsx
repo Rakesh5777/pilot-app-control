@@ -17,6 +17,7 @@ import { toaster } from "@/components/ui/toaster";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useCreationStore } from "@/store/creationStore";
 import { getChecklistQuestions } from "@/axios/checklistApi";
+import { displayOrDash } from "@/utils/utils";
 
 interface ChecklistDashboardProps {
   checklists: Checklist[];
@@ -209,7 +210,11 @@ const ChecklistTable: React.FC<{
                               NA
                             </Text>
                           );
-                        return <Text color="gray.400">-</Text>;
+                        return (
+                          <Text color="gray.400">
+                            {displayOrDash(value as string)}
+                          </Text>
+                        );
                       })()}
                     </Table.Cell>
                   ))}

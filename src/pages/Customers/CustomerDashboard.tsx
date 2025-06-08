@@ -9,6 +9,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+import { displayOrDash } from "@/utils/utils";
 
 export interface Customer {
   airlineName: string;
@@ -97,14 +98,16 @@ const CustomerTable: React.FC<{
             customers.map((item, index) => (
               <Table.Row key={item.customerCode}>
                 <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
-                <Table.Cell>{item.airlineName}</Table.Cell>
-                <Table.Cell>{item.customerCode}</Table.Cell>
-                <Table.Cell>{item.iataCode}</Table.Cell>
-                <Table.Cell>{item.businessRegistrationNumber}</Table.Cell>
-                <Table.Cell>{item.countryRegion}</Table.Cell>
-                <Table.Cell>{item.fleetSize}</Table.Cell>
-                <Table.Cell>{item.industry}</Table.Cell>
-                <Table.Cell>{item.customerType}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.airlineName)}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.customerCode)}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.iataCode)}</Table.Cell>
+                <Table.Cell>
+                  {displayOrDash(item.businessRegistrationNumber)}
+                </Table.Cell>
+                <Table.Cell>{displayOrDash(item.countryRegion)}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.fleetSize)}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.industry)}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.customerType)}</Table.Cell>
               </Table.Row>
             ))
           )}

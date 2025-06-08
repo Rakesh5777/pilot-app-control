@@ -13,6 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import type { AFRDataType } from "./AddAFRData";
 import { getCustomers } from "@/axios/customerApi";
+import { displayOrDash } from "@/utils/utils";
 
 interface AFRDataDashboardProps {
   afrData: AFRDataType[];
@@ -147,13 +148,17 @@ const AFRDataTable: React.FC<{
             afrData.map((item, index) => (
               <Table.Row key={item.id || index}>
                 <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
-                <Table.Cell>{item.customerName || "N/A"}</Table.Cell>
-                <Table.Cell>{item.customerCode || "N/A"}</Table.Cell>
-                <Table.Cell>{item.flightsTotal}</Table.Cell>
-                <Table.Cell>{item.organization}</Table.Cell>
-                <Table.Cell>{item.flightsWithAFR}</Table.Cell>
-                <Table.Cell>{item.flightsWithCaptainCode}</Table.Cell>
-                <Table.Cell>{item.percentageWithCaptainCode}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.customerName)}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.customerCode)}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.flightsTotal)}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.organization)}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.flightsWithAFR)}</Table.Cell>
+                <Table.Cell>
+                  {displayOrDash(item.flightsWithCaptainCode)}
+                </Table.Cell>
+                <Table.Cell>
+                  {displayOrDash(item.percentageWithCaptainCode)}
+                </Table.Cell>
                 <Table.Cell>{item.pilotAppSuitable ? "Yes" : "No"}</Table.Cell>
               </Table.Row>
             ))

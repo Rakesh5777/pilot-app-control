@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import type { Contact } from "./AddContact";
 import type { Customer } from "../Customers/CustomerDashboard";
 import { getCustomers } from "@/axios/customerApi";
+import { displayOrDash } from "@/utils/utils";
 
 interface ContactDashboardProps {
   contacts: Contact[];
@@ -138,18 +139,20 @@ const ContactTable: React.FC<{
               <Table.Row key={item.id}>
                 <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
                 <Table.Cell>
-                  {item.firstName} {item.lastName}
+                  {displayOrDash(item.firstName)} {displayOrDash(item.lastName)}
                 </Table.Cell>
-                <Table.Cell>{item.emailAddress}</Table.Cell>
-                <Table.Cell>{item.customerName || "N/A"}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.emailAddress)}</Table.Cell>
+                <Table.Cell>{displayOrDash(item.customerName)}</Table.Cell>
                 <Table.Cell>{item.isPrimary ? "Yes" : "No"}</Table.Cell>
                 <Table.Cell>
-                  {item.phoneNumbers?.find((p) => p.type === "Work")?.number ||
-                    "N/A"}
+                  {displayOrDash(
+                    item.phoneNumbers?.find((p) => p.type === "Work")?.number
+                  )}
                 </Table.Cell>
                 <Table.Cell>
-                  {item.phoneNumbers?.find((p) => p.type === "Mobile")
-                    ?.number || "N/A"}
+                  {displayOrDash(
+                    item.phoneNumbers?.find((p) => p.type === "Mobile")?.number
+                  )}
                 </Table.Cell>
               </Table.Row>
             ))
