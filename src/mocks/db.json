@@ -38,7 +38,7 @@
     },
     {
       "id": "e708",
-      "airlineName": "Kingfisher",
+      "airlineName": "Kingfisher1",
       "customerCode": "KING",
       "iataCode": "king",
       "businessRegistrationNumber": "1234",
@@ -46,7 +46,33 @@
       "fleetSize": "1",
       "industry": "Airline",
       "customerType": "Lead",
-      "comments": []
+      "comments": [
+        {
+          "comment": "wefqwedds",
+          "time": "2025-06-08T14:04:25.540Z"
+        }
+      ]
+    },
+    {
+      "id": "3e08",
+      "airlineName": "Air India 123",
+      "customerCode": "123",
+      "iataCode": "123",
+      "businessRegistrationNumber": "12321",
+      "countryRegion": "123",
+      "fleetSize": "11",
+      "industry": "Logistics",
+      "customerType": "Dummy Demx",
+      "comments": [
+        {
+          "comment": "comments to check 1",
+          "time": "2025-06-08T14:03:16.042Z"
+        },
+        {
+          "comment": "comments to check 2",
+          "time": "2025-06-08T14:03:42.273Z"
+        }
+      ]
     }
   ],
   "contacts": [

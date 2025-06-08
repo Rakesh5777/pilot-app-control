@@ -8,10 +8,11 @@ import {
   Box,
   Text,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { displayOrDash } from "@/utils/utils";
 
 export interface Customer {
+  id: string;
   airlineName: string;
   customerCode: string;
   iataCode: string;
@@ -62,81 +63,89 @@ const CustomerTable: React.FC<{
   page: number;
   setPage: (page: number) => void;
   totalPages: number;
-}> = React.memo(({ customers, loading, page, setPage, totalPages }) => (
-  <>
-    <Box
-      borderWidth="1px"
-      borderRadius="lg"
-      borderColor="border.default"
-      overflowX="auto"
-      overflowY="auto"
-    >
-      <Table.Root size="sm" variant="outline">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeader>#</Table.ColumnHeader>
-            <Table.ColumnHeader>Airline Name</Table.ColumnHeader>
-            <Table.ColumnHeader>Customer Code</Table.ColumnHeader>
-            <Table.ColumnHeader>IATA Code</Table.ColumnHeader>
-            <Table.ColumnHeader>Business Reg. No.</Table.ColumnHeader>
-            <Table.ColumnHeader>Country/Region</Table.ColumnHeader>
-            <Table.ColumnHeader>Fleet Size</Table.ColumnHeader>
-            <Table.ColumnHeader>Industry</Table.ColumnHeader>
-            <Table.ColumnHeader>Customer Type</Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {loading ? (
+}> = React.memo(({ customers, loading, page, setPage, totalPages }) => {
+  const navigate = useNavigate();
+
+  return (
+    <>
+      <Box
+        borderWidth="1px"
+        borderRadius="lg"
+        borderColor="border.default"
+        overflowX="auto"
+        overflowY="auto"
+      >
+        <Table.Root size="sm" variant="outline">
+          <Table.Header>
             <Table.Row>
-              <Table.Cell colSpan={8}>Loading...</Table.Cell>
+              <Table.ColumnHeader>#</Table.ColumnHeader>
+              <Table.ColumnHeader>Airline Name</Table.ColumnHeader>
+              <Table.ColumnHeader>Customer Code</Table.ColumnHeader>
+              <Table.ColumnHeader>IATA Code</Table.ColumnHeader>
+              <Table.ColumnHeader>Business Reg. No.</Table.ColumnHeader>
+              <Table.ColumnHeader>Country/Region</Table.ColumnHeader>
+              <Table.ColumnHeader>Fleet Size</Table.ColumnHeader>
+              <Table.ColumnHeader>Industry</Table.ColumnHeader>
+              <Table.ColumnHeader>Customer Type</Table.ColumnHeader>
             </Table.Row>
-          ) : customers.length === 0 ? (
-            <Table.Row>
-              <Table.Cell colSpan={8}>No customers found.</Table.Cell>
-            </Table.Row>
-          ) : (
-            customers.map((item, index) => (
-              <Table.Row key={item.customerCode}>
-                <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.airlineName)}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.customerCode)}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.iataCode)}</Table.Cell>
-                <Table.Cell>
-                  {displayOrDash(item.businessRegistrationNumber)}
-                </Table.Cell>
-                <Table.Cell>{displayOrDash(item.countryRegion)}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.fleetSize)}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.industry)}</Table.Cell>
-                <Table.Cell>{displayOrDash(item.customerType)}</Table.Cell>
+          </Table.Header>
+          <Table.Body>
+            {loading ? (
+              <Table.Row>
+                <Table.Cell colSpan={8}>Loading...</Table.Cell>
               </Table.Row>
-            ))
-          )}
-        </Table.Body>
-      </Table.Root>
-    </Box>
-    {totalPages > 1 && (
-      <HStack justifyContent="center" mt={2}>
-        <Button
-          size="xs"
-          onClick={() => setPage(Math.max(1, page - 1))}
-          disabled={page === 1}
-        >
-          Prev
-        </Button>
-        <Text fontSize="sm">
-          Page {page} of {totalPages}
-        </Text>
-        <Button
-          size="xs"
-          onClick={() => setPage(Math.min(totalPages, page + 1))}
-          disabled={page === totalPages}
-        >
-          Next
-        </Button>
-      </HStack>
-    )}
-  </>
-));
+            ) : customers.length === 0 ? (
+              <Table.Row>
+                <Table.Cell colSpan={8}>No customers found.</Table.Cell>
+              </Table.Row>
+            ) : (
+              customers.map((item, index) => (
+                <Table.Row
+                  key={item.customerCode}
+                  onClick={() => navigate(`/customers/edit/${item.id}`)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <Table.Cell>{(page - 1) * PAGE_SIZE + index + 1}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.airlineName)}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.customerCode)}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.iataCode)}</Table.Cell>
+                  <Table.Cell>
+                    {displayOrDash(item.businessRegistrationNumber)}
+                  </Table.Cell>
+                  <Table.Cell>{displayOrDash(item.countryRegion)}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.fleetSize)}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.industry)}</Table.Cell>
+                  <Table.Cell>{displayOrDash(item.customerType)}</Table.Cell>
+                </Table.Row>
+              ))
+            )}
+          </Table.Body>
+        </Table.Root>
+      </Box>
+      {totalPages > 1 && (
+        <HStack justifyContent="center" mt={2}>
+          <Button
+            size="xs"
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page === 1}
+          >
+            Prev
+          </Button>
+          <Text fontSize="sm">
+            Page {page} of {totalPages}
+          </Text>
+          <Button
+            size="xs"
+            onClick={() => setPage(Math.min(totalPages, page + 1))}
+            disabled={page === totalPages}
+          >
+            Next
+          </Button>
+        </HStack>
+      )}
+    </>
+  );
+});
 
 const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
   customers,

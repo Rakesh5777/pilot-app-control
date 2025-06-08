@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   Field,
@@ -19,10 +19,14 @@ import {
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useForm, Controller } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useCreationStore } from "@/store/creationStore";
-import { addCustomer } from "@/axios/customerApi";
+import {
+  addCustomer,
+  updateCustomer,
+  getCustomerById,
+} from "@/axios/customerApi";
 
 export interface CommentItem {
   comment: string;
@@ -63,7 +67,8 @@ const customerTypeOptions = [
 ];
 
 // Customer form for adding a new customer
-const AddCustomerForm: React.FC = () => {
+const AddCustomerForm: React.FC<{ mode?: "edit" }> = ({ mode }) => {
+  const { id } = useParams();
   const {
     handleSubmit,
     control,
@@ -91,26 +96,47 @@ const AddCustomerForm: React.FC = () => {
   const { setCustomerData, resetContactDataList } = useCreationStore();
   const comments = watch("comments");
 
-  // Save customer and navigate to add contacts
+  useEffect(() => {
+    if (mode === "edit" && id) {
+      getCustomerById(id).then((data) => {
+        reset(data);
+      });
+    }
+  }, [mode, id, reset]);
+
+  // Save customer and navigate to add contacts or update and go back
   const onSubmit = async (formData: FormData) => {
     const filteredComments = (formData.comments || []).filter(
       (c) => c.comment && c.comment.trim() !== ""
     );
     const customerDataToStore = { ...formData, comments: filteredComments };
     try {
-      const savedCustomer = await addCustomer(customerDataToStore);
-      setCustomerData(savedCustomer);
-      resetContactDataList();
-      toaster.create({
-        title: "Customer Saved",
-        description: "Proceed to add contacts.",
-        type: "success",
-      });
-      navigate(`./contact`);
+      if (mode === "edit" && id) {
+        await updateCustomer(id, customerDataToStore);
+        toaster.create({
+          title: "Customer Updated",
+          description: "Customer details updated successfully.",
+          type: "success",
+        });
+        navigate("/customers");
+      } else {
+        const savedCustomer = await addCustomer(customerDataToStore);
+        setCustomerData(savedCustomer);
+        resetContactDataList();
+        toaster.create({
+          title: "Customer Saved",
+          description: "Proceed to add contacts.",
+          type: "success",
+        });
+        navigate(`./contact`);
+      }
     } catch {
       toaster.create({
         title: "Error",
-        description: "Failed to save customer.",
+        description:
+          mode === "edit"
+            ? "Failed to update customer."
+            : "Failed to save customer.",
         type: "error",
       });
     }
@@ -176,7 +202,7 @@ const AddCustomerForm: React.FC = () => {
           <IoArrowBack />
         </Button>
         <Heading size="lg" color="gray.700">
-          Add Customer
+          {mode === "edit" ? "Update Customer" : "Add Customer"}
         </Heading>
       </HStack>
       <VStack gap={6} align="stretch">
@@ -455,7 +481,7 @@ const AddCustomerForm: React.FC = () => {
             Cancel
           </Button>
           <Button type="submit" minWidth="100px" loading={isSubmitting}>
-            Save & Next
+            {mode === "edit" ? "Update Customer" : "Save & Next"}
           </Button>
         </HStack>
       </VStack>

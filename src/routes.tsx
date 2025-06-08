@@ -21,6 +21,7 @@ export const routes = [
         children: [
           { index: true, element: <Customers /> },
           { path: "add", element: <AddCustomerForm /> },
+          { path: "edit/:id", element: <AddCustomerForm mode="edit" /> },
           { path: "add/contact", element: <AddContact /> },
           { path: "add/checklist", element: <AddChecklist /> },
           { path: "add/afrdata", element: <AddAFRData /> },

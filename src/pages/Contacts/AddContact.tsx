@@ -573,7 +573,6 @@ const AddContact: React.FC = () => {
               </Button>
             )}
             <Button
-              variant="outline"
               minWidth="150px"
               type="submit"
               disabled={!isValid || isSubmitting}

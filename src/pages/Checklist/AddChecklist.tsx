@@ -421,19 +421,33 @@ const AddChecklist: React.FC = () => {
           >
             Previous
           </Button>
-          <Button
-            type="submit"
-            loading={isSubmitting}
-            disabled={
-              !isValid ||
-              (!isCustomerCreationFlow && !selectedCustomerCode) ||
-              isSubmitting
-            }
-          >
-            {isCustomerCreationFlow
-              ? "Save Checklist & Finish"
-              : "Save Checklist"}
-          </Button>
+          <HStack gap={4}>
+            {isCustomerCreationFlow && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  resetStore();
+                  navigate("/customers");
+                }}
+                disabled={isSubmitting}
+              >
+                Skip
+              </Button>
+            )}
+            <Button
+              type="submit"
+              loading={isSubmitting}
+              disabled={
+                !isValid ||
+                (!isCustomerCreationFlow && !selectedCustomerCode) ||
+                isSubmitting
+              }
+            >
+              {isCustomerCreationFlow
+                ? "Save Checklist & Finish"
+                : "Save Checklist"}
+            </Button>
+          </HStack>
         </HStack>
       </VStack>
     </form>
